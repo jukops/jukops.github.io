@@ -19,3 +19,8 @@ paginate_path:     "/posts/page:num/"
 plugins:
   - jekyll-feed
   - jekyll-paginate
+
+menu:
+  Home: /
+  Tags: /tags
+  Categories: /categories
