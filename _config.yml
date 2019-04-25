@@ -1,4 +1,4 @@
-remote_theme : BlackrockDigital/startbootstrap-clean-blog-jekyll
+remote_theme : bencentra/centrarium
 
 title:             Clean Blog
 email:             your-email@example.com
