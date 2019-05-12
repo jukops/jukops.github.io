@@ -1,0 +1,105 @@
+---
+layout: post
+title:  "TCP Basic"
+date:   2018-05-11 10:03:00
+author: Juhyeok Bae
+categories: Network
+---
+
+# 용어 정리
+- MTU: Maximum retransmission unit
+       패킷 하나로 목적지까지 운반 가능한 데이터의 최대 길이이다. 기본적인 이더넷 환경에서는 1500 byte이다.
+- MSS: Maximum Segment Size
+       헤더를 제외하고 패킷 하나로 운반 가능한 TCP 데이터의 최대 사이즈.
+- RTT: Round-trip time.
+       패킷 송신 후 다시 송신측으로 돌아오기 까지 걸리는 시간.
+- RTO: Retransmission Timeout.
+       timeout 판단에 기준이 되는 시간.
+- RTTVAR: RTT variation
+          최근에 구해진 RTT 값이 평균에 비해 얼마나 차이 나는지 확인할 수 있는 가중치 값.
+- BDP: Bandwidth Delay Product.
+       네트워크에 전달중인 데이터의 양을 알 수 있는 값이다.
+       RTT가 2초, 대역폭이 100Mbps라면 BDP는 25MB
+       Bandwidth = BDP/RTT
+
+# TCP 기능
+- 신뢰성 전송
+  - timeout-based retransmission을 수행한다. 네트워크 상황이나 목적지 상황에 의해 일정시간 동안 ack값 수신 못하면 재전송 요청한다.
+  - 정상적인 상황에서는 ack 값이 연속적으로 전송된다.
+  - ack packet은 번호를 가지고 있고 이 번호를 사용해 패킷이 잘 도착 했는지 확인.
+
+- 흐름제어
+  - 데이터 처리 속도를 조절하여 목적지에서 버퍼가 overflow 되는것을 방지한다.
+  - 수신자측에서도 window size를 조절해 수신량을 정할 수 있다.
+
+- 에러감지
+  - 데이터의 변형이나 패킷의 유실로 인한 오류를 방지할 수 있다.
+  - checksum을 이용해 데이터 변형을 감지한다.
+    checksum 계산에는 pseudo 헤더 정보인 ip addr, segment length, protocol number를 이용한다.
+
+- 혼잡제어(congestion control)
+  - 네트워크 내의 패킷 수가 처리하지 못할 정도로 증가하지 않게 방지한다.
+  - receive window와 별도로 congestion window를 사용. 이는 네트워크 자체에 유입되는 데이터양을 제한하기 위함이다.
+    congestion control을 송신자가 단독으로 구현.
+  - 네트워크 상에 트레픽이 많으면 패킷을 조금만 전송해 혼잡 붕괴 현상 막는다.
+
+# TCP 헤더
+- source port(16bit) / dest port(16bit) - 32 bit
+- Sequence number - 32 bit
+- Acknowledgment number - 32 bit
+- Header Length(4bit) / Resv(4bit) / CWR / ... / PSH / SYN / FIN / windows size(16bit) - 32bit
+- checksum(16bit) / urgent pointer(16bit)
+
+# window
+- tcp의 경우 흐름제어를 하는데 stop-and-wait과 sliding window 방식을 사용한다.
+  stop and wait 의 경우 매번 전송한 패킷에 대해 ack를 받아야 다음 패킷을 전송하는 방법이다. sliding window의 경우 수신측에서 설정한 window size 만큼 ack 없이 송신자가 데이터를 전송하며, 이 사이즈를 조절 하여 데이터 흐름을 제어하는 기법이다.
+- 모든 패킷에 대하여 ack를 받으며 전송 하기엔 오버헤드가 되는데, window라는 패킷 묶음을 이용하면 같은 시간내 전송할 수 있는 데이터량이 많아진다.
+  window size 만큼 ack를 기다리지 않고 데이터를 전송할 수 있다. timeout 전에 ack가 오는 경우 전송에 성공한 것임으로 window 크기가 늘어나며, 실패하는 경우는 window 사이즈가 보통 줄어든다.
+- 대역폭을 늘리긴 위해선 RTT 값을 줄이거나 BDP 값을 늘려야 한다. RTT의 경우 보통 물리적인 환경 개선이 필요하다. BDP 같은 경우는 네트워크에 전달 중인 데이터 양의 흐름으로 window size를 조절하면 개선이 가능하다.
+
+# Receive window
+- receive window(RWIN)는 수신측이 ack 없이 한번에 받을 수 있는 데이터의 크기이다.
+- 수신측의 Rx socket buffer가 꽉 채워지면 수신측은 더이상 패킷을 받을 수 없는 상태가 된다. 따라서 이 공간이 꽉차지 않게 관리를 해줘야 유실을 줄일 수 있다. 이 Rx socket buffer 크기를 송신자에게 전달하면 송신측에서는 크기를 계산하여 넘치지 않을만큼 데이터를 전송한다. 즉 해당 소켓의 크기가 곧 tcp 헤더에 있는 window size에 영향을 준다.
+- 만약 Rx socket buffer가 꽉 차게될 경우가 오면 수신측에서는 window size 헤더 값을 0으로 전달해 송신자에게 송신을 멈추라고 한다. 이를 zero window라고 한다.
+
+# Congestion window
+- Congestion window(CWND)은 송신측이 ack 없이 한번에 보내는 크기이다. 수신측에서 receive window를 크게 잡아 송신자에게 보내더라도 그 속도가 보장 되지는 않는다. 송신측 에서도 CWND를 통해 흐름 제어를 하기 때문이다. 즉 속도 개선을 위해선 RWIN 뿐만 아니라 CWND의 값 조절도 필요한것이다.
+- 각 노드들은 congestion avoidance algorithm을 이용해 자체적으로 보내는양을 조절 하는데, congestion avoidance algorithm에는 RTT 등의 몇가지 값을 파라메터로 갖고 값이 계산된다. 이 계산된 크기가 CWND 값이며 송신측에서 한번에 보낼 수 있는 최대치이다.
+- CWND의 초기 값은 보통 1이며 수신측 으로부터 ack를 받으면 값을 두배씩 증가 시킨다. `1 -> 2 -> 4 ...` 네트워크의 이상이 없는 경우에는 RWIN과 CWND값은 같은 값이다.
+- 만약 timeout이나 dup-ack를 3번이상 받는 등의 네트워크에 유실이 있다고 판단되면 congestion window 값을 줄인다. 이상이 없을 경우는 RWIN 값이 송신자가 보낼수 있는 최대의 사이즈이지만 이상이 있는 경우는 CWND 값을 줄여 CWND 값이 송신자가 보낼수 있는 최대 크기가 된다.
+- 리눅스는 아래 명령어로 확인 가능하다.  
+  ```
+  $ ss -i
+  tcp   ESTAB      0      0                                                                         10.0.2.15:22                                                                                     10.0.2.2:58925
+	 cubic rto:204 rtt:0.104/0.042 ato:40 mss:1460 cwnd:10 bytes_acked:6865 bytes_received:3985 segs_out:104 segs_in:137 send 1123.1Mbps lastrcv:8 pacing_rate 2235.4Mbps rcv_space:29200
+  ```
+  -> cubic 알고리즘 사용, cwnd:10 현재 윈도우 갯수 10개
+- 초기 CWND 값을 변경 하려면 아래 명령어를 이용한다.
+  ```
+  $ ip route change default via <gateway addr> dev <nic>  proto static initcwnd 10
+  ```
+- congestion window 초기화 설정하려면 아래 명령어를 이용한다.
+  ```
+  net.ipv4.tcp_slow_start_after_idle
+  ```
+  -> 1이면 통신 지속적으로 없을 경우 다시 slow start를 통해 initial congestion window size 부터 증가
+     0이면 통신 없더라도 congestion window size 유지
+
+# Window scaling
+- TCP header에는 window size가 있고 이 헤더값의 크기는 2bytes이다. 이 헤더의 1bit는 데이터 크기 1byte를 의미 하며 2^16을 계산하면 64K를 갖는다. 즉 최대로 전송 가능한 데이터는 64Kbytes 라는 뜻이다.
+  하지만 현재의 네트워크 성능에 비하면 이 크기가 작기 때문에 이를 높여주기 위해서 window scaling을 이용한다. 2bytes인 window size로 더 큰 크기를 표현 하기가 힘들기 때문에 scaling factor를 곱하여 실제 window size를 늘리는 형태를 취한다. 아래 처럼 window size와 window scaling 값을 곱한 값이 실제 window size가 된다.
+  ```
+  Window size value: 106
+  Calculated window size: 27136
+  Window size scaling factor: 256
+  ```
+- window scale option은 syn packet에만 있으며, window scale 값은 0~14까지 지정되며 2^n 승으로 계산된다.
+- window scale을 사용하기 위해선 양측 모두 옵션이 활성화 되어 있어야 하며, 리눅스에서는 `net.ipv4.tcp_window_scaling` 커널 파라메터로 설정 가능하다.
+
+---
+# 정리
+- 왕복으로 걸리는 시간을 구하는 **RTT** 값이 있고, 타임아웃 값을 정하는 **RTO**가 있다.
+- TCP에서는 데이터 전송의 효율을 높이기 위해 ACK 없이 한번에 보낼 수 있는 양인 **window size**를 관리한다.
+- RWIN는 수신측에서 ACK없이 한번에 받을 수 있는 데이터의 양으로, 수신측의 Rx socket buffer size를 통해 값이 정해진다. 이 값은 TCP header의 window size이다. 이를 통해 흐름제어 수행이 가능하다.
+- CWND는 송신측에서 ACK 없이 한번에 보내는 양이다. 네트워크에 이상이 없는 경우 RWIN 값과 같지만 timeout이나 dup-ack 등의 이상이 있다고 판단되는 순간이 오면 이 사이즈를 줄여 데이터를 전송한다. 이를 통해 혼잡제어를 수행한다.
+- window size header는 2bytes를 갖는데 이는 오래전에 설계된것임으로 현재의 빨라진 네트워크 상황과는 맞지 않는다. 이 크기를 늘려주기 위하여 window scaling option을 사용할 수 있다. 해당 옵션을 사용하는 경우 window size * window scaling factor가 실제 window size가 되고, 이는 최대 1Gbytes 가까이 올라갈 수 있다. 만약 사용하지 않는다면 최대 window size는 2bytes내 표현될 수 있는 값인 64Kbytes가 된다.
