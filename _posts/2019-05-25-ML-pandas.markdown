@@ -1,0 +1,133 @@
+---
+layout: post
+title:  "Python Pandas"
+date:   2019-05-25 21:32:00
+author: Juhyeok Bae
+categories: Machine Learning
+---
+# Pandas 소개
+Python으로 데이터 분석시 사용하는 라이브러리이다. pandas는 numpy 기반으로 구현 되었는데, pandas에서 제공 하는 dataframe 사용시 RDB 만큼 데이터를 가공하거나 분석이 가능하다.
+
+# Pandas 특징
+- index 객체를 가지고 있는데 이는 RDB에서 PK 역할과 비슷 하다고 보면 된다. index 객체를 1차원 array로 가지고 있으며, 보통 숫자가 붙는다(0,1,2...). 한번 만들어진 index는 쉽게 변경이 불가하다.
+- pandas 에서는 []를 컬럼 엑세스로 사용하고, 일반 배열처럼 0번째, 1번째 인덱스 접근으로는 사용 하지 않는다. 다만 슬라이스 접근은 가능하다.
+  ```
+  df[0] # 불가
+  df['age'][0] # 불가
+  df[0:1] # 가능 첫번째 row를 반환함.
+  ```
+- pandas에서 인덱스 접근 방식은 []가 아닌, iloc[]과 loc[]으로 한다. iloc은 위치 기반 인덱싱으로 숫자를 통해 접근 한다. `df.iloc[0, 1]` 이면 첫번째 행, 두번째 열의 데이터를 반환한다.
+`df.loc`은 명칭 기반 인덱스 방법으로 이름을 통해 접근 한다. 첫번째는 인덱스 값(번호), 두번째는 컬럼이 된다. `df.loc[0, 'text']` 이면 인덱스 번호 0에, text 컬럼의 데이터에 접근 한다는 뜻이다. 데이터를 복사하거나 drop등을 한 경우 원본 데이터가 가공 되어 index 번호가 0 부터 시작하지 않을 수 있으니 데이터를 잘 보고 선택 해야 한다.
+
+# Pandas 사용법
+### DataFrame 생성
+- csv 데이터 읽어 생성
+  ```
+  tweets = pd.read_csv("./dataset/tweets.csv")
+  ```
+- 다른 DataFrame으로 부터 생성
+  ```
+  my_df = pd.DataFrame(data=orig_df['text'])
+  ```
+### 형변환
+- DataFrame을 리스트로 변환
+  ```
+  my_list = df.values.tolist()
+  ```
+
+### 데이터셋 조작
+- 새로운 컬럼(alive) 생성 및 0으로 초기화
+  ```
+  df['alive'] = 0
+  ```
+- 다른 컬럼데이터로 새로운 컬럼 생성
+  ```
+  df['kr'] = df['us']*1100
+  ```
+- 데이터 삭제
+  데이터 삭제는 drop()을 사용하며, 몇가지 파라메터를 이용해 행인지 열인지 구별한다.
+  axis=0인 경우 특정 row 삭제며, axis=1인 경우 특정 컬럼 삭제이다.
+  ```
+  # df에서 kr을 가진 컬럼 삭제
+  df = df.drop('kr', axis=1)
+  # 혹은
+  df.drop('kr', axis=1, inplace=True)
+  ```
+- 여러 컬럼 삭제
+  ```
+  df.drop(['ip', 'cname'], axis=1, inplace=True)
+  ```
+- 데이터 정렬
+  정렬을 위하여 sort_values()를 사용한다. by로 특정 컬럼을 지정할 수 있으며, ascending 으로는 오름차순 정렬 기준을 설정, inplace는 정렬결과를 해당 dataframe에 바로 적용 할것인지 선택 가능하다.
+  ```
+  df_sorted = df.sort_value(by=['age'], ascending=True, inplace=True)
+  ```
+- 유용 함수
+  ```
+  # 해당 컬럼의 가장 작은 수 반환
+  df['age'].min()
+
+  # 해당 컬럼의 가장 큰수 반환
+  df['age'].max()
+
+  # 모든 컬럼들의 count 값 보기
+  df.count()
+
+- groupby
+  ```
+  # class 라는 컬럼 데이터 기준으로 groupby해서 카운트
+  df.groupby(by='class').count()
+  ```
+
+- missing data 처리
+  - 미싱 여부 확인. 각 데이터가 true, false로 반환됨.
+    ```
+    df.isna()
+    ```
+  - NaN가 몇개나 있는지 확인
+    ```
+    df.isna().sum()
+    ```
+  - NaN데이터를 다른 데이터로 대체
+    ```
+    # 특정 값으로 대체
+    df['address'].fillna('no address')
+
+    # 평균으로 대체
+    df['age'] = df['age'].fillna(df['age'].mean())
+    ```
+- lambda 사용
+  - 일반 lambda 식
+    ```
+    # 변수 하나
+    get_square = lambda x : x**2
+
+    # 리스트
+    get_square_list = map(lambda x : x**2, a)
+    ```
+  - pandas lambda 식
+    ```
+    # 조건 없이 단순 길이 컬럼 추가
+    df['text_len'] = df['text'].apply(lambda x : len(x))
+
+    # 조건 활용 컬럼 추가
+    t_df['SA_TF'] = t_df['SA'].apply(lambda x: 'T' if x > 0 else 'F')
+    ```
+- 특정 컬럼의(handle) 유니크값 가져오기
+  ```
+  df.handle.unique()
+  ```
+
+- Data filter
+  ```
+  # handle 컬럼으로 소팅한 전체 데이터
+  t_text = df[df["handle"] == "realDonaldTrump"]
+
+  # handle 컬럼으로 소팅한 두 컬럼(text, SA) 데이터
+  t_text = df[df["handle"] == "realDonaldTrump"][['text', 'SA']]
+  ```
+
+- 조건연산자를 통한 필터
+  ```
+  df[ (df['SA'] == 0) & (df['size'] > 10) ]
+  ```
