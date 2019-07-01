@@ -6,4 +6,9 @@ author: Juhyeok Bae
 categories: Network
 ---
 
-# Socket
+# Socket 상태
+
+# 3 hand-shake
+- ![3 Hand shake](/assets/img/tcp-3handshake.png)
+
+# 4 hand-shake
