@@ -9,6 +9,6 @@ categories: Network
 # Socket 상태
 
 # 3 hand-shake
-![3 Hand shake](/assets/img/tcp-3handshake.png){:width="200px" height="400px"}
+![3 Hand shake](/assets/img/tcp-3handshake.png){:width="100px" height="350px"}
 
 # 4 hand-shake
