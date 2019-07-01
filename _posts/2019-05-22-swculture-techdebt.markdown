@@ -3,7 +3,7 @@ layout: post
 title:  "기술부채"
 date:   2019-05-23 03:04:00
 author: Juhyeok Bae
-categories: S/W Culture
+categories: SoftwareCulture
 ---
 
 # 기술부채

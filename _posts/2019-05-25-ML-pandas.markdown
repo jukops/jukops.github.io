@@ -3,7 +3,7 @@ layout: post
 title:  "Python Pandas"
 date:   2019-05-25 21:32:00
 author: Juhyeok Bae
-categories: Machine Learning
+categories: MachineLearning
 ---
 # Pandas 소개
 Python으로 데이터 분석시 사용하는 라이브러리이다. pandas는 numpy 기반으로 구현 되었는데, pandas에서 제공 하는 dataframe 사용시 RDB 만큼 데이터를 가공하거나 분석이 가능하다.
@@ -72,6 +72,7 @@ Python으로 데이터 분석시 사용하는 라이브러리이다. pandas는 n
 
   # 모든 컬럼들의 count 값 보기
   df.count()
+  ```
 
 - groupby
   ```
