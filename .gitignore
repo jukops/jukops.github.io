@@ -1,3 +1,4 @@
 *.swp
 *.txt.local
 *.markdown.local
+*.DS_Store

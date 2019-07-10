@@ -1,0 +1,50 @@
+---
+layout: post
+title:  "Kafka basic"
+date:   2019-07-11 02:35:00
+author: Juhyeok Bae
+categories: DataPlatform
+---
+# Kafka 소개
+Kafka는 오픈소스로 제공 되는 분산 메세지 큐 시스템이다. 대용량 실시간 데이터처리에 특화 되어 좋은 TPS 성능을 가지고 있다. 비동기 방식과 여러 플랫폼의 호환성을 통하여 이기종간의 데이터 송/수신을 쉽도록 하며, data pipeline을 쉽게 구성할 수 있도록 해준다. 다른 메시지 큐와는 달리 데이터를 메모리에 저장하는 않고 디스크에 저장하며, consume 하더라도 큐에서 데이터를 제거 하지 않는다.
+
+# Kafka와 Zookeeper
+Kafka 시스템은 메시지 브로커 역할인 kafka 자체와 kafka의 설정을 관리하는 zookeeper로 구성된다.
+- Kafka
+  kafka는 메시지를 저장하는 큐잉 역할을 한다. kafka의 경우는 클러스터에서 Leader와 follower로 서버가 구분 된다. 메시지를 읽고 쓰는것은 모두 leader가 담당 하게 된다. follower는 백업을 위해 leader의 데이터를 동기화만 하고 대기하다가 leader가 서비스 불가능 상태가 되면 promote 되어 이후에 데이터 읽고 쓰는 작업이 수행된다.  
+  producer 옵션 중 acks라는 옵션이 있는데 이를 활용해 데이터의 안정성을 셋팅 할 수 있다.
+  0: producer는 전달 후 브로커 서버의 ack를 기다리지 않는다. 유실보다 처리량 우선
+  1: 브로커로 데이터 전달시 leader에 기록하고 ack를 전달 한다. 유실, 처리량 모두 고려
+  all: 브로커로 데이터 전달시 leader와 follower 모두에 저장 후 ack를 전달한다. 처리량 보다 유실량 감소 우선.
+
+- Zookeeper
+  zookeeper의 경우는 여러개로 구성되는 kafka의 노드관리, 그리고 topic이 가지고 있는 offset 정보 등을 관리하여 kafka 서버가 분산 시스템으로써 문제 없이 잘 돌아가도록 관리 해주는 역할을 한다.  
+  보통은 3개 이상의 노드를 갖도록 구성하며, zookeeper의 경우는 선거를 통한 master를 선출하기 때문에 홀수로 관리 되어야 한다.
+
+# Producer와 Consumer
+RabbitMQ 등과 같은 다른 큐잉 시스템 처럼 데이터 생산자인 Producer와 소비자인 Consumer, 둘 사이에서 메세지를 전달 하는 역할인 Kafka로 구성된다. producer와 consumer는 서로 모르는 사이이다. 즉 서로가 어떻게 동작 될지에 대해서는 고려 하지 않은채로 동작한다. producer는 단순히 데이터를 kafka로 전달만 하고, consumer는 어떻게 데이터가 전달 되었는지는 고려하지 않고 그냥 단순히 kafka에 있는 데이터만 가져온다.
+
+- Producer
+  데이터를 생산하는 주체이며, publisher라고도 한다. 데이터를 push 방식으로 kafka에 전달 하게 되며 전달된 데이터는 topic중 partition 하나에 저장된다.
+
+- Consumer
+  데이터를 소비하는 주체이며, subscriber라고도 한다. 데이터를 pull 방식으로 consumer가 kafka에 접근해 가져오게 된다. kafka의 경우 consume하면 브로커의 큐에서 데이터가 사라지는것이 아니기 때문에 offset을 통해서 어디까지 데이터가 consume 되었는지 체크한다.
+
+- Consumer Group
+  consumer의 그룹이다. 특정 topic을 subscribe 하는 consumer가 있다고 할때, 만약 이 consumer가 죽게 된다면 더 이상 데이터를 가져가지 못하게 된다. 이를 위해 consumer group에 서버(프로세스)를 여러개 배치하여 HA를 구성할 수 있다. 그리고 kafka에서는 topic의 offset이 consumer group 단위로 관리 된다. consumer group에 위치한 서버(프로세스) 하나를 consumer instance라고 하는데, 특정 consumer instance가 죽더라도 다른 consumer instance가 그 다음 데이터를 잘 가져가야하기 때문에 group 단위로 offset을 관리한다.
+  만약 topic을 바라보는 consumer group이 두개 라면 offset은 그룹당 하나로 2개의 offset이 관리가 된다.
+
+# Topic과 Partition
+- Topic
+  Kafka에서 메시지는 topic이라는 단위로 관리가 된다. 같은 A라는 내용이 있는 데이터라도 다른 topic에 있다면 이는 다른 데이터이다. producer와 consumer는 데이터를 송/수신 할시 이 topic을 지정하여 데이터를 처리한다.
+  Topic 생성시 replication-factor를 지정 할 수 있는데, 이는 해당 topic이 얼마나 많은 cluster에 분산 저장 될것인지 결정한다. 만약 3개의 broker로 구성된 클러스터에서 해당 factor를 3으로 주면 모든 broker 서버에 topic이 복제된다. 만약 factor가 1이라면 하나의 broker 서버에만 topic이 생성된다. 만약 1로 관리시 해당 broker에 문제가 생기는 경우 서비스가 불가 할 수 있다.
+
+- Partition
+  Partition은 Topic에서 또 한번 데이터 관리 단위를 나누는 개념이다. Partition 을 나눔으로 인해 데이터의 분산처리가 가능해 진다. partition의 특징으로는 partition내에 있는 데이터에 대해서는 데이터의 순차성이 보장 되지만, partition이 다르다면 들어온 순서에 상관 없이 consumer가 가져가는 데이터는 순서가 바뀔 수 있다. 참고로 파티션에 저장되는 데이터 한 요소는 log라고 부른다.  
+  만약 하나의 topic에 partition이 하나인 경우에 a, b, c, d 데이터가 들어 왔다면 해당 파티션에 a,b,c,d가 저장 되어 있고 파티션 내에 순서를 보장하기 때문에 consume 하여도 a,b,c,d로 순서가 바뀌지 않는다. 하지만 만약 partition이 4개로 저장 되어 있다면, partition-1에는 a, p2에는 b, p3에는 c, p4에는 d가 들어가게 된다. 파티션 끼리는 순서를 보장해 주지 않기 때문에 consume을 하게 되면 a,b,d,c 등과 같이 순서가 바뀐 데이터를 받을 수 있다.  
+  그리고 하나의 partition은 하나의 consumer instance만 연결이 된다. 만약 partion-a에 1번 consume instance가 데이터를 consume하고 있으면 다른 consume instance들은 접근이 불가하다. 따라서 partition 수보다 consumer instance가 더 많게 되면 놀게 되는 consumer instance가 생기는 것이다. 보통은 partition수와 instance수를 1:1로 맞춰 주어 구성을 한다. 이는 사용하는 경우에 따라 partition수와 consume instance 수를 적절히 조절하여 사용 하여야 한다.
+
+# Kafka 성능
+Kafka는 메모리가 아닌 디스크에 데이터가 저장된다. Kafka가 한 topic내에 여러 partition을 둠으로써 분산 처리가 가능하지만, 그렇다 하더라도 데이터를 메모리가 아닌 디스크에 저장하는데 어떻게 좋은 성능을 낼 수 있을까?
+물리적 속도차가 있기 때문에 같은 조건 내에서는 메모리가 디스크보다 유리 하다고 한다. 하지만 조건이 다른 경우, 디스크의 Sequential access와 메모리의 Random access를 비교하면 디스크의 Sequential access의 성능이 더 좋다고 한다. Kafka의 메세지는 디스크에 순차적으로 저장되며, Sequential access로 데이터를 읽는다. 추가로 Page cache를 활용 함으로써 메시지를 디스크에 저장 하더라도 좋은 성능을 낼 수 있도록 한다.  
+그리고 consumer에게 데이터 전송이 일어날때 zero-copy 기법을 이용해 전송 성능을 향상 시킨다. 일반적으로 application 에서 데이터 전송시 커널에 직접 접근이 불가 하기 때문에 kernel과 application 영역으로의 여러번 복사 과정 이후에 전송이 이루어 진다. zero-copy의 경우 sendfile 함수를 이용하여 kernel 버퍼에서 바로 데이터를 전송 할 수 있다. 따라서 불필요한 스위칭과 복사과정을 줄여 성능향상을 할 수 있는것이다.
