@@ -6,7 +6,7 @@ author: Juhyeok Bae
 categories: container
 ---
 # 소개
-K8s에서는 Container를 Pod 단위로 관리 한다. 이 Pod는 여러개의 container를 포함 하는 단위이다. Pod에 로직을 수행 하는 app container 하나만 넣어 만들수도 있다. 하지만 서비스를 구성하다 보면 Pod 내에 여러 container를 넣어 구성 하기도 한다. 내부에 로그 수집기가 필요 하기도 하고, 모니터링 메트릭을 서버에 전달하는 에이전트가 필요 하기도 하다. 혹은 앞단에 프록시를 두어 라우팅 하거나, 더 나아가 istio 등을 사용해 모든 app container 앞단에 proxy를 두어 서비스 메쉬 형태의 구조를 취할수 도 있다. 이 글에서는 이런 K8s의 대표적인 디자인 패턴을 보도록 하겠다.
+K8s에서는 Container를 Pod 단위로 관리 한다. 이 Pod는 여러개의 container를 포함 하는 단위이다. Pod에 로직을 수행 하는 app container 하나만 넣어 만들수도 있다. 하지만 서비스를 구성하다 보면 Pod 내에 여러 container를 넣어 구성 하기도 한다. 내부에 로그 수집기가 필요 하기도 하고, 모니터링 메트릭을 서버에 전달하는 에이전트가 필요 하기도 하다. 혹은 앞단에 프록시를 두어 라우팅 하거나, 더 나아가 istio 등을 사용해 모든 app container 앞단에 proxy를 두어 서비스 메쉬 형태의 구조를 취할수 도 있다. 이 처럼 하나의 Pod에 각 목적을 가진 여러 컨테이너를 넣어 구성 한다. 또 이런 Pod를 여러개 모아 전체 서비스를 구성한다. 이 글에서는 이런 K8s의 대표적인 디자인 패턴을 보도록 하겠다.
 
 # Sidecar pattern
 - 개념
