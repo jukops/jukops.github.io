@@ -115,6 +115,7 @@ categories: java
 
 - 첫번째 덤프  
   첫번째 덤프 만으로는 어떤 문제 인지 알기 힘들다. RUNNABLE 상태의 쓰레드가 얼마나 오래 유지 되었는지 모르기 때문이다. 따라서 5초 정도 간격으로 최소 5번은 떠야 한다.  
+
   ```
   "http-nio-8080-exec-4" #45 daemon prio=5 os_prio=0 tid=0x00007f30a07f6800 nid=0x2f06 runnable [0x00007f305dee7000]
    java.lang.Thread.State: RUNNABLE
@@ -159,6 +160,7 @@ categories: java
 - N번째 덤프  
   5초 이후 덤프를 떠서 첫번째 덤프와 비교를 한다. 비교해 보면 계속해서 RUNNABLE 상태로 있는 쓰레드가 발견된다. 이 쓰레드가 문제가 있는 경우이다. 해당 쓰레드의 스택 트레이스를 따라가보면 `at java.net.HttpURLConnection.getResponseCode` 로 호출 후 값을 받기 위해 소켓을 연 후 계속 멈춰 있는것을 알 수 있다.  
   netstat이나 소스코드, 서버 설정 등을 확인하여 어떤 서버로 호출 했는지 확인해야 한다.  
+
   ```
   "http-nio-8080-exec-4" #45 daemon prio=5 os_prio=0 tid=0x00007f30a07f6800 nid=0x2f06 runnable [0x00007f305dee7000]
    java.lang.Thread.State: RUNNABLE
