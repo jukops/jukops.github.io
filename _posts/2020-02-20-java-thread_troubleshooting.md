@@ -201,6 +201,6 @@ categories: java
   실제 curl로 확인 시 12초 정도의 지연이 보인다.
   ```
   # juk @ JUHYEOKui-MBP in ~ [2:50:04] C:130
-  $ curl -XGET -o /dev/null -s -w "%{time_total}" http://auth.jh.internal:8080/token
+  $ curl -XGET -o /dev/null -s -w "%{time_total}" http://auth.jh.internal:8080/validate
   12.017317%
   ```
