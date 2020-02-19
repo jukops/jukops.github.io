@@ -48,68 +48,63 @@ categories: java
   이 주소값을 활용 하여 lock을 건 쓰레드를 찾아보면 Thread-3임을 알 수 있다. Thread-3의 스택 트레이스를 보면 `- locked <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)` 으로 0x00000000f5aebbf0에 대해 lock을 걸고 아직 로직을 수행 중인것을 알 수 있다. 따라서 이 Thread-3에서 해당 블록에 대해 lock을 풀어야 다른 쓰레드 들에서 접근 가능하다.  
 
   ```
-  Attach Listener
-  priority:9 - threadId:0x00007f49cc001000 - nativeId:0x2e03 - nativeId (decimal):11779 - state:RUNNABLE
-  stackTrace:
-  java.lang.Thread.State: RUNNABLE
-  Locked ownable synchronizers:
-  - None
+  "Attach Listener" #21 daemon prio=9 os_prio=0 tid=0x00007f49cc001000 nid=0x2e03 waiting on condition [0x0000000000000000]
+     java.lang.Thread.State: RUNNABLE
 
-  Thread-3
-  priority:5 - threadId:0x00007f49f813f800 - nativeId:0x2de4 - nativeId (decimal):11748 - state:RUNNABLE
-  stackTrace:
-  java.lang.Thread.State: RUNNABLE
-  at java.io.FileOutputStream.writeBytes(java.base@9-internal/Native Method)
-  at java.io.FileOutputStream.write(java.base@9-internal/FileOutputStream.java:327)
-  at java.io.BufferedOutputStream.flushBuffer(java.base@9-internal/BufferedOutputStream.java:81)
-  at java.io.BufferedOutputStream.flush(java.base@9-internal/BufferedOutputStream.java:142)
-  - locked <0x00000000f5b22788> (a java.io.BufferedOutputStream)
-  at java.io.PrintStream.write(java.base@9-internal/PrintStream.java:482)
-  - locked <0x00000000f5b07f58> (a java.io.PrintStream)
-  at sun.nio.cs.StreamEncoder.writeBytes(java.base@9-internal/StreamEncoder.java:233)
-  at sun.nio.cs.StreamEncoder.implFlushBuffer(java.base@9-internal/StreamEncoder.java:312)
-  at sun.nio.cs.StreamEncoder.flushBuffer(java.base@9-internal/StreamEncoder.java:104)
-  - locked <0x00000000f5b07f18> (a java.io.OutputStreamWriter)
-  at java.io.OutputStreamWriter.flushBuffer(java.base@9-internal/OutputStreamWriter.java:186)
-  at java.io.PrintStream.newLine(java.base@9-internal/PrintStream.java:546)
-  - locked <0x00000000f5b07f58> (a java.io.PrintStream)
-  at java.io.PrintStream.println(java.base@9-internal/PrintStream.java:737)
-  - locked <0x00000000f5b07f58> (a java.io.PrintStream)
-  at NumberObject.increaseFoo(JhThreadTest.java:24)
-  - locked <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
-  at JhThread.run(JhThreadTest.java:16)
-  Locked ownable synchronizers:
-  - None
+     Locked ownable synchronizers:
+      - None
 
-  Thread-0
-  priority:5 - threadId:0x00007f49f8139800 - nativeId:0x2de1 - nativeId (decimal):11745 - state:BLOCKED
-  stackTrace:
-  java.lang.Thread.State: BLOCKED (on object monitor)
-  at NumberObject.increaseFoo(JhThreadTest.java:23)
-  - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
-  at JhThread.run(JhThreadTest.java:16)
-  Locked ownable synchronizers:
-  - None
+  "Thread-3" #13 prio=5 os_prio=0 tid=0x00007f49f813f800 nid=0x2de4 runnable [0x00007f49e0a81000]
+     java.lang.Thread.State: RUNNABLE
+      at java.io.FileOutputStream.writeBytes(java.base@9-internal/Native Method)
+      at java.io.FileOutputStream.write(java.base@9-internal/FileOutputStream.java:327)
+      at java.io.BufferedOutputStream.flushBuffer(java.base@9-internal/BufferedOutputStream.java:81)
+      at java.io.BufferedOutputStream.flush(java.base@9-internal/BufferedOutputStream.java:142)
+      - locked <0x00000000f5b22788> (a java.io.BufferedOutputStream)
+      at java.io.PrintStream.write(java.base@9-internal/PrintStream.java:482)
+      - locked <0x00000000f5b07f58> (a java.io.PrintStream)
+      at sun.nio.cs.StreamEncoder.writeBytes(java.base@9-internal/StreamEncoder.java:233)
+      at sun.nio.cs.StreamEncoder.implFlushBuffer(java.base@9-internal/StreamEncoder.java:312)
+      at sun.nio.cs.StreamEncoder.flushBuffer(java.base@9-internal/StreamEncoder.java:104)
+      - locked <0x00000000f5b07f18> (a java.io.OutputStreamWriter)
+      at java.io.OutputStreamWriter.flushBuffer(java.base@9-internal/OutputStreamWriter.java:186)
+      at java.io.PrintStream.newLine(java.base@9-internal/PrintStream.java:546)
+      - locked <0x00000000f5b07f58> (a java.io.PrintStream)
+      at java.io.PrintStream.println(java.base@9-internal/PrintStream.java:737)
+      - locked <0x00000000f5b07f58> (a java.io.PrintStream)
+      at NumberObject.increaseFoo(JhThreadTest.java:24)
+      - locked <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
+      at JhThread.run(JhThreadTest.java:16)
 
-  Thread-1
-  priority:5 - threadId:0x00007f49f813b800 - nativeId:0x2de2 - nativeId (decimal):11746 - state:BLOCKED
-  stackTrace:
-  java.lang.Thread.State: BLOCKED (on object monitor)
-  at NumberObject.increaseFoo(JhThreadTest.java:23)
-  - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
-  at JhThread.run(JhThreadTest.java:16)
-  Locked ownable synchronizers:
-  - None
+     Locked ownable synchronizers:
+      - None
+
+  "Thread-0" #10 prio=5 os_prio=0 tid=0x00007f49f8139800 nid=0x2de1 waiting for monitor entry [0x00007f49e0d84000]
+     java.lang.Thread.State: BLOCKED (on object monitor)
+      at NumberObject.increaseFoo(JhThreadTest.java:23)
+      - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
+      at JhThread.run(JhThreadTest.java:16)
+
+     Locked ownable synchronizers:
+      - None
+
+  "Thread-1" #11 prio=5 os_prio=0 tid=0x00007f49f813b800 nid=0x2de2 waiting for monitor entry [0x00007f49e0c83000]
+     java.lang.Thread.State: BLOCKED (on object monitor)
+      at NumberObject.increaseFoo(JhThreadTest.java:23)
+      - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
+      at JhThread.run(JhThreadTest.java:16)
+
+     Locked ownable synchronizers:
+      - None
 
   ...
 
-  Thread-9
-  priority:5 - threadId:0x00007f49f814a800 - nativeId:0x2dea - nativeId (decimal):11754 - state:BLOCKED
-  stackTrace:
-  java.lang.Thread.State: BLOCKED (on object monitor)
-  at NumberObject.increaseFoo(JhThreadTest.java:23)
-  - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
-  at JhThread.run(JhThreadTest.java:16)
-  Locked ownable synchronizers:
-  - None
+  "Thread-9" #19 prio=5 os_prio=0 tid=0x00007f49f814a800 nid=0x2dea waiting for monitor entry [0x00007f49e047b000]
+     java.lang.Thread.State: BLOCKED (on object monitor)
+      at NumberObject.increaseFoo(JhThreadTest.java:23)
+      - waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)
+      at JhThread.run(JhThreadTest.java:16)
+
+     Locked ownable synchronizers:
+      - None
   ```
