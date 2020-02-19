@@ -46,6 +46,7 @@ categories: java
   이때 BLOCK 상태의 쓰레드에서 주의 깊게 보아야 할곳이 `- waiting to lock <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)` 부분이다.  
   이는 0x00000000f5aebbf0 주소를 가지는 NumberObject을 접근 하지 못하여 lock이 풀릴때 까지 기다린다는 뜻이다.  
   이 주소값을 활용 하여 lock을 건 쓰레드를 찾아보면 Thread-3임을 알 수 있다. Thread-3의 스택 트레이스를 보면 `- locked <0x00000000f5aebbf0> (a java.lang.Class for NumberObject)` 으로 0x00000000f5aebbf0에 대해 lock을 걸고 아직 로직을 수행 중인것을 알 수 있다. 따라서 이 Thread-3에서 해당 블록에 대해 lock을 풀어야 다른 쓰레드 들에서 접근 가능하다.  
+
   ```
   Attach Listener
   priority:9 - threadId:0x00007f49cc001000 - nativeId:0x2e03 - nativeId (decimal):11779 - state:RUNNABLE
