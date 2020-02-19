@@ -1,3 +1,10 @@
+---
+layout: post
+title:  "자바 Threaddump"
+date:   2020-02-01 01:35:00
+author: Juhyeok Bae
+categories: java
+---
 # 쓰레드 상태
   ![thread 0](/assets/img/java-thread-status-0.png)
 - NEW
