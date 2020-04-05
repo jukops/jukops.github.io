@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "자바 Threaddump를 이용한 이슈분석"
-date:   2020-02-20 01:22:00
+title: "자바 Threaddump를 이용한 이슈분석"
+date: 2020-02-20 01:22:00
 author: Juhyeok Bae
 categories: java
 ---
