@@ -21,14 +21,14 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
   uWSGI 처럼 WSGI 컨테이너 이다. uWSGI는 다소 무거운데 반해 Gunicorn은 좀 더 가볍다는 장점이 있다. 마찬가지 단독으로도 실행 가능하고, nginx와 연동해 사용도 가능하다.
 
 # 설정
-1) 패키지 설치
-  apache에서 쓰는 라이브러리 설치 및 모듈 enable이 필요 합니다.
+1) 패키지 설치  
+  apache에서 쓰는 라이브러리 설치 및 모듈 enable이 필요 합니다.  
     ```
     # apt-get install libapache2-mod-wsgi-py3
     # a2enmod wsgi
     ```
 
-2) Apache 설정
+2) Apache 설정  
   Apache는 정적 처리를 위한 웹서버 이기 때문에 python을 직접 처리 하지 않습니다. 따라서 WSGI를 실행 하기 위해서 스크립트 경로 지정 및 몇몇 설정이 필요 합니다.
     ```
     <VirtualHost *:80>
@@ -49,7 +49,7 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
     </Directory>
     ```
 
-3) WSGI 스크립트 설정
+3) WSGI 스크립트 설정  
   아파치에서 WSGIScriptAlias에 적어준 스크립트를 작성 해야 합니다. 이 스크립트는 실제 로직 수행을 위한 기능을 가지고 있는 스크립트가 아닙니다. 로직 수행하는 스크립트의 경로를 지정하여 트리거 하는 역할을 합니다.  
   아래는 /var/www/flask/myapp 에 있는 스크립트를 실행 하기 위한 WSGI 스크립트 입니다.
     ```
@@ -59,7 +59,7 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
     from myapp import app as application
     ```
 
-4) Flask app 구현
+4) Flask app 구현  
   flask 앱의 위치는 wsgi 스크립트 작성시 적어준 위치에 있어야 수행 됩니다.  
   Python에서 단일 스크립트가 아니라 패키지 형태 여러 파일로 구성된 경우 `__init__.py` 가 제일 먼저 수행 됩니다. 현 예제는 로직을 구현한 파일이 하나 밖에 없긴 하지만 패키지 처럼 사용 하기 위해 `__init__.py`로 파일을 생성 합니다.  
   아래는 간단히 / path로 들어올시 json 결과를 출력하도록 구현한 flask app 입니다.
@@ -76,7 +76,7 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
       app.run()
     ```
 
-5) 서비스 재시작 및 확인
+5) 서비스 재시작 및 확인  
     ```
     # service apache2 restart
     # curl http://flask.juk.internal
