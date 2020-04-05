@@ -22,7 +22,7 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
 
 # 설정
 1) 패키지 설치  
-  apache에서 쓰는 라이브러리 설치 및 모듈 enable이 필요 합니다.  
+  apache에서 쓰는 라이브러리 설치 및 모듈 enable이 필요 합니다.
     ```
     # apt-get install libapache2-mod-wsgi-py3
     # a2enmod wsgi
@@ -77,6 +77,7 @@ WSGI 또한 프로토콜이기 때문에 웹서버와 WAS 간 규격을 맞춰�
     ```
 
 5) 서비스 재시작 및 확인  
+  프로세스 재시작 및 curl로 확인 합니다.  
     ```
     # service apache2 restart
     # curl http://flask.juk.internal
