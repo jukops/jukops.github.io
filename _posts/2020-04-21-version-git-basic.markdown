@@ -9,7 +9,7 @@ categories: Versioning
 Git은 소스코드의 버전을 관리해주는 툴이다. SVN, Perforce 등과 같은 다른 버저닝 툴과 마찬가지 소스코드를 커밋 하고 그 버전을 관리 한다는 점에서는 동일 하다. 하지만 분산형 구조를 갖는점, 버전을 snapshot id를 통해 관리 하는 점, branch와 fork를 통해 유연한 workflow를 가질 수 있는점 등을 통해 더 강력하고 유연하게 사용이 가능하다.
 
 # File lifecycle in git
-![tls-handshake](/assets/img/tls-handshake.png)
+![tls-handshake](/assets/img/git-file-lifecycle.png)
 - untracked  
   원래 git 저장소에 없던 파일을 새로 추가 할시 파일은 untracked 상태가 된다. 이는 해당 파일이 git에서 관리 하는 파일이 아님을 뜻한다. 파일을 git을 통해 관리 하려고 하면 `git add`를 통해 tracked 상태로 변경 해야 한다.
 - unmodified  
