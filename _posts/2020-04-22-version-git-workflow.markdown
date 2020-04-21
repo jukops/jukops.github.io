@@ -23,12 +23,12 @@ categories: Versioning
 - 큰 규모의 시스템에서 이런 구조를 갖는다. 계층 구조를 가져 적당히 분리 됨으로 독립성을 가질 수 있다. Linux가 이런 형태를 갖는다.
 
 # Merge workflow
-  - 간단한 merge workflow
+  - 간단한 merge workflow  
     1) topic branch를 만들어 개발.  
     2) topic branch를 develop에 merge.  
     3) master를 develop로 fast-forward 시킴.  
 
-  - 대규모 merge workflow
+  - 대규모 merge workflow  
     1) long-running branch 4개 생성. master, next, pu, maint  
     2) 개발자는 자신의 저장소에 topic branch 만들어 관리.  
     3) topic branch 기능 안정화 되면 next로 merge.  
