@@ -24,14 +24,14 @@ categories: Versioning
 
 # Merge workflow
   - 간단한 merge workflow
-    1) topic branch를 만들어 개발.
-    2) topic branch를 develop에 merge.
-    3) master를 develop로 fast-forward 시킴.
+    1) topic branch를 만들어 개발.  
+    2) topic branch를 develop에 merge.  
+    3) master를 develop로 fast-forward 시킴.  
 
   - 대규모 merge workflow
-    1) long-running branch 4개 생성. master, next, pu, maint
-    2) 개발자는 자신의 저장소에 topic branch 만들어 관리.
-    3) topic branch 기능 안정화 되면 next로 merge.
-       좀 더 개선되어야 한다면 next가 아닌 pu에 merge
-    4) pu에서 충분히 검증을 마치면 next로 옮김.
-    5) topic 브랜치가 master로 merge 되면 삭제.
+    1) long-running branch 4개 생성. master, next, pu, maint  
+    2) 개발자는 자신의 저장소에 topic branch 만들어 관리.  
+    3) topic branch 기능 안정화 되면 next로 merge.  
+       좀 더 개선되어야 한다면 next가 아닌 pu에 merge  
+    4) pu에서 충분히 검증을 마치면 next로 옮김.  
+    5) topic 브랜치가 master로 merge 되면 삭제.  
