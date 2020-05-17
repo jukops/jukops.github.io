@@ -3,7 +3,7 @@ layout: post
 title: "Hyper Converged Infrastructure"
 date: 2020-05-17 23:17:00
 author: Juhyeok Bae
-categories: Versioning
+categories: Infrastructure
 ---
 # HCI란
 서버, 스토리지, 네트워크, 가상화 SW 등 각기 다른 장비를 가지고 하나의 시스템으로 구축 하는것과 달리, 하나의 벤더사에서 서버, 스토리지, 네트워크 등 HW 장비를 구성하고 SW를 설치하여 하나의 시스템으로 제공 하는 인프라를 HCI라고 한다. 여러 장비의 infrastructure를 가상화를 통해 하나의 통합된 논리 환경으로 제공한다.
