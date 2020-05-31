@@ -33,14 +33,14 @@ HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 �
   ```
 
 # Application의 HPA 생성
-- Install using command line
+- Install using command line  
   복잡한 설정 없이 간단히 HPA를 생성 하고 싶다면 아래 명령어를 사용한다.
   CPU 사용률이 50을 넘어가면 Scale UP을 하는 명령어 이다.
   ```
   $ kubectl autoscale deployment jpython --min=1 --max=5 --cpu-percent=50 -n japp
   ```
 
-- Install using yaml file
+- Install using yaml file  
   좀 더 많은 옵션을 사용 하거나 코드로 값을 관리 하고 싶다면 yaml 파일을 통해 생성 한다.
   ```
   $ cat hpa.yaml
@@ -61,7 +61,7 @@ HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 �
   $ kubectl apply -f hpa.yaml
   ```
 
-- Check
+- Check  
   현재는 로드가 없어 pod가 1대인것을 볼 수 있다.
   ```
   $ kubectl get hpa
@@ -70,9 +70,12 @@ HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 �
   ```
   stress 등의 aging 툴을 이용해 cpu 부하를 주면 임계치 까지 scaleUp을 진행 한다. HPA의 경우 기본 정책이 15초 마다 체크이다. 따라서 pod의 CPU가 현재 100%를 치더 라도 scheduler에 의해 확인이 안되었으면 반영된 값이 안보일 수도 있다. 만약 민감한 시스템이라면 이 값을 조절 하여 scheduler의 주기를 변경 한다.  
   아래는 하나의 pod에 stress로 cpu 100을 만든 테스트 결과 이다. 임계치 50을 넘어 autoscaling이 동작 하였다. HPA가 Rescale한 event 확인 가능하고, 현재 임계치 이하의 값을 견딜만큼의 pod가 늘어 난것도 확인 가능하다.
+  - event  
   ```
   Normal   SuccessfulRescale             5m30s (x3 over 8h)  horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
   ```
+
+  - HPA pod count  
   ```
   $ kubectl get hpa
   NAME      REFERENCE            TARGETS   MINPODS   MAXPODS   REPLICAS   AGE

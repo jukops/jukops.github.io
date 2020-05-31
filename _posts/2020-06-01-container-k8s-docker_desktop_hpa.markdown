@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "K8s for Docker Desktop HPA resource unknown issue"
-date: 2020-06-01 02:03:00
+date: 2020-06-01 02:06:00
 author: Juhyeok Bae
 categories: Container
 ---
@@ -45,8 +45,8 @@ Certificate chain
 ```
 
 # 해결  
-문제의 원인은 인증서 이슈 인것을 볼 수 있다. 근본 해결을 위해서 metrics-server에 인증서를 추가해 주는 방법도 있지만 로컬테스트 환경을 위해서 그정도 까지 하고 싶진 않았다. metrics-server도 docker image를 통해 배포 됨으로 언제든 삭제 되거나 재배포 될 수 있다. 따라서 인증서를 trust list에 추가 하여 해결 한다면, 해당 인증서가 추가된 Docker image를 새로 말거나 Pod 시작시 인증서를 다운로드 받도록 해줘야 한다.  
-하지만 로컬 테스트 환경임으로 TLS 인증 에러를 무시 하도록 하여 간단히 해결 하였다. kubectl edit으로 metrics 서버의 deployment를 수정 하거나 yaml 파일을 수정해 재배포 하면 된다. 아래와 같이 `--kubelet-insecure-tls` 옵션을 추가해 실행 하도록 설정한다.
+문제의 원인은 인증서 이슈 인것을 볼 수 있다. metrics-server에 인증서를 추가 하면 해결이 가능하다. metrics-server는 docker image를 통해 배포 됨으로 언제든 삭제 되거나 재배포 될 수 있다. 따라서 인증서를 trust list에 추가 하여 해결 한다면, 해당 인증서가 추가된 Docker image를 새로 말거나 Pod 시작시 인증서를 다운로드 받도록 해줘야 한다.  
+하지만 로컬 테스트 환경임으로 TLS 인증 에러를 무시 하도록 하여 간단히 해결 하였다. kubectl edit으로 metrics 서버의 deployment를 수정 하거나 yaml 파일을 수정해 재배포 하면 된다. 아래처럼 `--kubelet-insecure-tls` 옵션을 추가해 실행 하도록 설정한다.
   ```
          containers:
          - name: metrics-server
