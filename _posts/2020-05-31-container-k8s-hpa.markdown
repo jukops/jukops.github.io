@@ -7,7 +7,7 @@ categories: Container
 ---
 
 # HPA(HorizontalPodAutoscaler)란
-Kubernetes에서 pod의 스케일 관리를 위해 사용 하는 오브젝트이다. pod라고 다 스케일 조절을 할 수 있는것은 아니다. rc, rs, deployment와 같이 스케일을 갖는 오브젝트는 가능하나 기본적으로 스케일 조절이 힘든 daemonset 같은 경우는 적용이 불가하다. 일정주기(--horizontal-pod-autoscaler-sync-period)로 리소스를 체크하며 지정한 threshold에 도달하면 스케일 변경을 실행 한다. 만약 목표값 설정이 되어 있지 않으면 CPU, Memory 등의 값이 아무리 높아져도 별도의 조치를 하지 않는다.
+Kubernetes에서 pod의 스케일 관리를 위해 사용 하는 오브젝트이다. pod에서 사용하는 cpu, memory 등 의 리소스 상황에 pod를 늘리거나 줄인다. 하지만 pod라고 다 스케일 조절을 할 수 있는것은 아니다. rc, rs, deployment와 같이 스케일을 갖는 오브젝트로 관리되는 pod는 가능하나 기본적으로 스케일 조절이 힘든 daemonset으로 관리 되는 pod는 적용이 불가하다. 일정주기(--horizontal-pod-autoscaler-sync-period)로 리소스를 체크하며 지정한 threshold에 도달하면 스케일 변경을 실행 한다. 만약 목표값 설정이 되어 있지 않으면 CPU, Memory 등의 값이 아무리 높아져도 별도의 조치를 하지 않는다.
 
 # 준비 사항
 ### Metrics-server
@@ -17,7 +17,7 @@ HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 �
   $ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
   $ kubectl apply -f components.yaml
   ```
-설치를 진행하면 metrics-server deployment가 생성 되어 pod가 배포되고 metrics-server가 동작한다. 그리고 완료시 node와 pod의 리소스 상태를 볼 수 있는 top 명령어 사용이 가능하다. 만약 값을 정상적으로 받아 오지 못한다면 [여기](https://jukops.github.io)를 참고 한다.
+설치를 진행하면 metrics-server deployment가 생성 되어 pod가 배포되고 metrics-server가 동작한다. 그리고 완료시 node와 pod의 리소스 상태를 볼 수 있는 top 명령어 사용이 가능하다. 만약 값을 정상적으로 받아 오지 못한다면 [여기](https://jukops.github.io/container/2020/06/01/container-k8s-docker_desktop_hpa.html)를 참고 한다.
   ```
   $ kubectl get deployment/metrics-server -n kube-system
   NAME             READY   UP-TO-DATE   AVAILABLE   AGE
