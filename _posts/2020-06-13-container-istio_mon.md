@@ -124,3 +124,12 @@ kiali 웹 접근시 계정 정보가 필요하다. 기본적으로 추가 되어
 ### 4. Overview page
 제일 처음 접속 하면 overview가 보여진다. 따로 설정을 하지 않아도 현재 cluster에 존재하는 namespace 들이 모두 추가가 되어 있다. namespace의 간략한 정보 및 처리되는 트레픽 양을 간략히 보여준다.
 ![kiali1](/assets/img/istio-kiali-1.png)
+
+### 5. Mesh graph - with response time
+그래프 간선에 response time을 추가한 것이다. 그래프로 표현된 그림과 response time을 확인 할 수 있다.  
+별개로 그래프를 그리기 까지 엄청난 삽질을 했다. 그래프가 그려지지 않는 문제가 있었는데, kiali 버전 이슈 및 버그 였다. kiali 로그에선 `"missing expected TS labels"` 메세지가 보였고, 사용한 환경은 istio 1.5.4 버전이 었다. kiali가 기본적으로 1.15 로 설정 되어 배포 되는데 이를 1.18로 고쳐 배포 하니 문제가 해결 되었다.
+![kiali2](/assets/img/istio-kiali-2.png)
+
+### 6. Mesh graph - traffic percentage
+여러 버전으로 배포된 app에 대해 가중치 확인을 할 수 있다. 아래는 bookinfo 예제를 그래프로 표현한 것인데, reviews 서비스의 3개 버전에 대해 약 30%씩 트레픽이 전달 되는것을 확인 할 수 있다.
+![kiali3](/assets/img/istio-kiali-3.png)
