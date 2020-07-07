@@ -12,7 +12,7 @@ categories: container
 Pod level에서 가질수 있는 리소스 제한 설정이다. 해당 값에 따라 pod가 가질수 있는 리소스 양이 결정 되고 노드에 생성 되거나 삭제 되기도 한다.
 
 - **request**  
-  파드를 실행하기 위한 최소의 리소스 양을 지정 한다. 만약 현재 노드의 가용한 리소스양이 request 값 보다 적다면 pod를 생성 하지 않는다. 노드의 리소스가 확보 될때까지 pending 상태로 대기한다.
+  파드를 실행하기 위한 최소의 리소스 양을 지정 한다. 만약 현재 노드의 가용한 리소스양이 request 값 보다 적다면 pod를 생성 하지 않는다. 노드의 리소스가 확보 될때까지 pending 상태로 대기한다.  
   ```
   containers:
     - name: test
@@ -23,7 +23,7 @@ Pod level에서 가질수 있는 리소스 제한 설정이다. 해당 값에 �
   ```
 
 - **limit**  
-  파드가 사용 가능한 최대 리소스양을 지정한다. 만약 limit 값 이상을 초과하여 리소스를 사용 하려고 하면 pod는 throttling 된다. 설정에 따라 pod가 종료되고 스케줄링 되어 재실행 되기도 한다.
+  파드가 사용 가능한 최대 리소스양을 지정한다. 만약 limit 값 이상을 초과하여 리소스를 사용 하려고 하면 pod는 throttling 된다. 설정에 따라 pod가 종료되고 스케줄링 되어 재실행 되기도 한다.  
   ```
   containers:
     - name: test
@@ -74,7 +74,7 @@ Namespace level의 리소스 설정이다. namespace내에 있는 모든 파드�
   자세한 내용은 [쿠버네티스](https://kubernetes.io/ko/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/) 사이트에서 확인 가능하다.
 
   - pod에 request/limit이 없을 경우  
-    만약 pod에 request/limit 값 설정을 하지 않았다면, request mem 값은 512Mi, limit mem 값은 1Gi가 된다.
+    만약 pod에 request/limit 값 설정을 하지 않았다면, request mem 값은 512Mi, limit mem 값은 1Gi가 된다.  
     ```
     apiVersion: v1
     kind: LimitRange
@@ -91,7 +91,7 @@ Namespace level의 리소스 설정이다. namespace내에 있는 모든 파드�
 
   - min/max 제한  
     LimitRange를 이용해 각 pod가 가지는 request/limit의 양을 제한할 수 있다.  
-    아래 설정 기준에서 resources.limits.cpu가 1100m이 된다면 max값 초과로 pod 생성이 실패 한다. 그리고 resources.requests.cpu가 300m이 된다면 min값 이하로 설정 되었음으로 이 경우도 pod 생성이 실패한다.
+    아래 설정 기준에서 resources.limits.cpu가 1100m이 된다면 max값 초과로 pod 생성이 실패 한다. 그리고 resources.requests.cpu가 300m이 된다면 min값 이하로 설정 되었음으로 이 경우도 pod 생성이 실패한다.  
     ```
     apiVersion: v1
     kind: LimitRange
