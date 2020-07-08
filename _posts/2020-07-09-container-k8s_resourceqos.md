@@ -52,4 +52,4 @@ $ kubectl get pods jhpython-678d767469-67cpn -o yaml | grep qosClass
   |---|---|---|---|
   |Pod A|90Mi|100Mi|150Mi|
   |Pod B|140Mi|200Mi|250Mi|
-  노드에 위와 같은 pod 들이 배포 되어 있다. 실제로 사용 하고 있는 리소스는 Pod B가 Pod A 보다 50이나 많다. 하지만 request 기준으로 사용률로 보면 Pod A가 90%, Pod B가 70%이다. OOM score는 사용률이 높을때 삭제 하는 score를 부여 한다. 위 경우에서는 Pod A가 사용률이 높아 삭제 되는 Pod로 선정된다.
+  노드에 위와 같은 pod 들이 배포 되어 있다. 실제로 사용 하고 있는 리소스는 Pod B가 Pod A 보다 50이나 많다. 하지만 request 기준으로 사용률로 보면 Pod A가 90%, Pod B가 70%이다. 사용률이 높을때 pod를 삭제 하도록 OOM score를 부여 한다. 위 경우에서는 Pod A가 사용률이 높아 삭제 되는 Pod로 선정된다.
