@@ -102,7 +102,10 @@ vagrant   2263  2205  2283 13   23 00:31 pts/1    00:03:06 java MtThreads
 vagrant   2263  2205  2284 12   23 00:31 pts/1    00:03:05 java MtThreads
 vagrant   2263  2205  2341  0   23 00:32 pts/1    00:00:00 java MtThreads
 ```
-
+쓰레드 별로 CPU와 메모리 사용률을 보고 싶다면 top 명령어를 통해서도 확인할 수 있다.
+```
+$ top -H -p <pid>
+```
 # 케이스 스터디
 - Lock
 - 외부 시스템 이슈
