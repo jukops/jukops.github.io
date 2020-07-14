@@ -10,32 +10,32 @@ categories: Container
 Kubernetes에서 pod의 스케일 관리를 위해 사용 하는 오브젝트이다. pod에서 사용하는 cpu, memory 등 의 리소스 상황에 pod를 늘리거나 줄인다. 하지만 pod라고 다 스케일 조절을 할 수 있는것은 아니다. rc, rs, deployment와 같이 스케일을 갖는 오브젝트로 관리되는 pod는 가능하나 기본적으로 스케일 조절이 힘든 daemonset으로 관리 되는 pod는 적용이 불가하다. 일정주기(--horizontal-pod-autoscaler-sync-period)로 리소스를 체크하며 지정한 threshold에 도달하면 스케일 변경을 실행 한다. 만약 목표값 설정이 되어 있지 않으면 CPU, Memory 등의 값이 아무리 높아져도 별도의 조치를 하지 않는다.
 
 # 준비 사항
-### Metrics-server
-HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 하기 때문에 pod의 metric을 읽을 수 있어야 한다. 기존의 경우 heapster에서 kubernetes metric을 제공 했으나 1.11 부터 deprecated 되었다. 이후 버전부터는 metrics-server를 사용하여 metric을 확인한다.  
-기본적으로 metrics-server는 kube-proxy 처럼 기본으로 설치 되어 있지 않다.따로 설치를 진행해 해줘야 한다. metrics-server의 [github](https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml)에서 yaml 파일을 제공함으로 다운 받아 설치하면 편하다.
-  ```
-  $ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
-  $ kubectl apply -f components.yaml
-  ```
-설치를 진행하면 metrics-server deployment가 생성 되어 pod가 배포되고 metrics-server가 동작한다. 그리고 완료시 node와 pod의 리소스 상태를 볼 수 있는 top 명령어 사용이 가능하다. 만약 값을 정상적으로 받아 오지 못한다면 [여기](https://jukops.github.io/container/2020/06/01/container-k8s-docker_desktop_hpa.html)를 참고 한다.
-  ```
-  $ kubectl get deployment/metrics-server -n kube-system
-  NAME             READY   UP-TO-DATE   AVAILABLE   AGE
-  metrics-server   1/1     1            1           104m
+- Metrics-server
+  HPA는 cpu나 memory 같은 리소스 바탕으로 pod의 스케일을 조절 하기 때문에 pod의 metric을 읽을 수 있어야 한다. 기존의 경우 heapster에서 kubernetes metric을 제공 했으나 1.11 부터 deprecated 되었다. 이후 버전부터는 metrics-server를 사용하여 metric을 확인한다.  
+  기본적으로 metrics-server는 kube-proxy 처럼 기본으로 설치 되어 있지 않다.따로 설치를 진행해 해줘야 한다. metrics-server의 [github](https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml)에서 yaml 파일을 제공함으로 다운 받아 설치하면 편하다.
+    ```
+    $ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
+    $ kubectl apply -f components.yaml
+    ```
+  설치를 진행하면 metrics-server deployment가 생성 되어 pod가 배포되고 metrics-server가 동작한다. 그리고 완료시 node와 pod의 리소스 상태를 볼 수 있는 top 명령어 사용이 가능하다. 만약 값을 정상적으로 받아 오지 못한다면 [여기](https://jukops.github.io/container/2020/06/01/container-k8s-docker_desktop_hpa.html)를 참고 한다.
+    ```
+    $ kubectl get deployment/metrics-server -n kube-system
+    NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+    metrics-server   1/1     1            1           104m
 
-  $ kubectl top node
-  NAME             CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
-  docker-desktop   228m         5%     1182Mi          62%
+    $ kubectl top node
+    NAME             CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+    docker-desktop   228m         5%     1182Mi          62%
 
-  $ kubectl top pod
-  NAME                       CPU(cores)   MEMORY(bytes)
-  jpython-7d7fd99b65-bd9mc   1m           47Mi
-  ```
+    $ kubectl top pod
+    NAME                       CPU(cores)   MEMORY(bytes)
+    jpython-7d7fd99b65-bd9mc   1m           47Mi
+    ```
 
 # Application의 HPA 생성
 - Install using command line  
   복잡한 설정 없이 간단히 HPA를 생성 하고 싶다면 아래 명령어를 사용한다.
-  CPU 사용률이 50을 넘어가면 Scale UP을 하는 명령어 이다.
+  CPU 사용률이 50을 넘어가면 Scale UP을 하는 명령어 이다. 이때 사용률 기준은 request가 된다. (실제 사용률)/(pod의 request)가 사용률 기준이다.
   ```
   $ kubectl autoscale deployment jpython --min=1 --max=5 --cpu-percent=50 -n japp
   ```
