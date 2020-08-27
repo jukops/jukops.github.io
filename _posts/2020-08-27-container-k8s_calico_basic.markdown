@@ -31,7 +31,7 @@ spec:
 
 ### 적용 가능한 policy
 - sample  
-아래는 sample이다. podSelector를 통해 어떤 Pod에 정책을 적용할건지 선택할 수 있다. 또한 selector는 어떤 pod에서 오는 트레픽을 선별할 건지도 선택 할 수 있다. 아래 ingress의 namespaceSelector, podSelector에 해당 하는 부분이다. ingress, egress에서는 selector 외에 ipBlock, port등을 가지고도 network를 필터링 할 수 있다.  
+아래는 sample이다. podSelector를 통해 어떤 Pod에 정책을 적용할건지 선택할 수 있다. 또한 selector는 어떤 pod에서 오는 트레픽을 선별할 건지도 선택 할 수 있다. 아래 ingress의 namespaceSelector, podSelector에 해당 하는 부분이다. ingress, egress에서는 selector 외에 ipBlock, port등을 가지고도 network를 필터링 할 수 있다.
 ```
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -69,7 +69,7 @@ spec:
       port: 5978
 ```
 
-- deny all traffic from all to all pods in japp namespace.  
+- deny all traffic from all to all pods in japp namespace.
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
