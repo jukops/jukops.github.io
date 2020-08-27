@@ -30,7 +30,7 @@ spec:
 ```
 
 ### 적용 가능한 policy
-- sample  
+##### sample  
 아래는 sample이다. podSelector를 통해 어떤 Pod에 정책을 적용할건지 선택할 수 있다. 또한 selector는 어떤 pod에서 오는 트레픽을 선별할 건지도 선택 할 수 있다. 아래 ingress의 namespaceSelector, podSelector에 해당 하는 부분이다. ingress, egress에서는 selector 외에 ipBlock, port등을 가지고도 network를 필터링 할 수 있다.
 ```
 apiVersion: networking.k8s.io/v1
@@ -69,7 +69,7 @@ spec:
       port: 5978
 ```
 
-- deny all traffic from all to all pods in japp namespace.
+##### deny all traffic from all to all pods in japp namespace.
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -83,7 +83,7 @@ spec:
   - egress
 ```
 
-- allow traffic from pod that name label is jnginx to jpython pod  
+##### allow traffic from pod that name label is jnginx to jpython pod  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -103,7 +103,7 @@ spec:
           app: jnginx
 ```
 
-- allow traffic from all namespaces to jpython pod  
+##### allow traffic from all namespaces to jpython pod  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -121,7 +121,7 @@ spec:
     - namespaceSelector: {}
 ```
 
-- allow traffic from namespace which has 'stack: test' label to jpython pod  
+##### allow traffic from namespace which has 'stack: test' label to jpython pod  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -139,7 +139,7 @@ spec:
           stack: test
 ```
 
-- allow traffic from namespace which has 'stack: test' label or 'stack: dev ' label to jpython pod  
+##### allow traffic from namespace which has 'stack: test' label or 'stack: dev ' label to jpython pod  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -160,7 +160,7 @@ spec:
           stack: dev
 ```
 
-- allow traffic from namespace which has 'stack: test' and dst port is 8080.
+##### allow traffic from namespace which has 'stack: test' and dst port is 8080.
 Note that dst port 8080 is not service port. It's pos's exposed port.  
 ```
 kind: NetworkPolicy
@@ -182,7 +182,7 @@ spec:
       port: 8080
 ```
 
-- allow from all  
+##### allow from all  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -197,7 +197,7 @@ spec:
   - from: []
 ```
 
-- allow egress traffic that dst port is 80 or 443. Other ports are denied.  
+##### allow egress traffic that dst port is 80 or 443. Other ports are denied.  
 ```
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -218,8 +218,8 @@ spec:
       protocol: TCP
 ```
 
-- more samples  
+##### more samples  
 https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/01-deny-all-traffic-to-an-application.md
 
-- 기타  
+##### 기타  
 정책으로 막아도 노드포트로 들어가는 트레픽은 무조건 curl이 성공 하는것 처럼 보인다. 이는 시나리오를 세우고 다시 테스트가 필요 할듯 하다.
