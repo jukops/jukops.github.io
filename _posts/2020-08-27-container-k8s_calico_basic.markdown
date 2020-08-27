@@ -31,195 +31,195 @@ spec:
 
 ### 적용 가능한 policy
 - sample  
-  아래는 sample이다. podSelector를 통해 어떤 Pod에 정책을 적용할건지 선택할 수 있다. 또한 selector는 어떤 pod에서 오는 트레픽을 선별할 건지도 선택 할 수 있다. 아래 ingress의 namespaceSelector, podSelector에 해당 하는 부분이다. ingress, egress에서는 selector 외에 ipBlock, port등을 가지고도 network를 필터링 할 수 있다.  
-  ```
-  apiVersion: networking.k8s.io/v1
-  kind: NetworkPolicy
-  metadata:
-    name: test-network-policy
-    namespace: default
-  spec:
-    podSelector:
-      matchLabels:
-        role: db
-    policyTypes:
-    - Ingress
-    - Egress
-    ingress:
-    - from:
-      - ipBlock:
-          cidr: 172.17.0.0/16
-          except:
-          - 172.17.1.0/24
-      - namespaceSelector:
-          matchLabels:
-            project: myproject
-      - podSelector:
-          matchLabels:
-            role: frontend
-      ports:
-      - protocol: TCP
-        port: 6379
-    egress:
-    - to:
-      - ipBlock:
-          cidr: 10.0.0.0/24
-      ports:
-      - protocol: TCP
-        port: 5978
-  ```
+아래는 sample이다. podSelector를 통해 어떤 Pod에 정책을 적용할건지 선택할 수 있다. 또한 selector는 어떤 pod에서 오는 트레픽을 선별할 건지도 선택 할 수 있다. 아래 ingress의 namespaceSelector, podSelector에 해당 하는 부분이다. ingress, egress에서는 selector 외에 ipBlock, port등을 가지고도 network를 필터링 할 수 있다.  
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+```
 
 - deny all traffic from all to all pods in japp namespace.  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: default-deny
-    namespace: japp
-  spec:
-    podSelector: {}
-    policyTypes:
-    - Ingress
-    - egress
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny
+  namespace: japp
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - egress
+```
 
 - allow traffic from pod that name label is jnginx to jpython pod  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-jnginx
-    namespace: japp
-  spec:
-    policyTypes:
-    - Ingress
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            app: jnginx
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-jnginx
+  namespace: japp
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          app: jnginx
+```
 
 - allow traffic from all namespaces to jpython pod  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-from-all-ns
-    namespace: japp
-  spec:
-    policyTypes:
-    - Ingress
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from:
-      - namespaceSelector: {}
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-from-all-ns
+  namespace: japp
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from:
+    - namespaceSelector: {}
+```
 
 - allow traffic from namespace which has 'stack: test' label to jpython pod  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-ingress-test-ns
-    namespace: japp
-  spec:
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            stack: test
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-test-ns
+  namespace: japp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          stack: test
+```
 
 - allow traffic from namespace which has 'stack: test' label or 'stack: dev ' label to jpython pod  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-ingress-test-dev-ns
-    namespace: japp
-  spec:
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            stack: test
-      - namespaceSelector:
-          matchLabels:
-            stack: dev
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-test-dev-ns
+  namespace: japp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          stack: test
+    - namespaceSelector:
+        matchLabels:
+          stack: dev
+```
 
 - allow traffic from namespace which has 'stack: test' and dst port is 8080.
-  Note that dst port 8080 is not service port. It's pos's exposed port.  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-ingress-8080
-    namespace: japp
-  spec:
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            stack: test
-      ports:
-      - protocol: TCP
-        port: 8080
-  ```
+Note that dst port 8080 is not service port. It's pos's exposed port.  
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-ingress-8080
+  namespace: japp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          stack: test
+    ports:
+    - protocol: TCP
+      port: 8080
+```
 
 - allow from all  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: default-allow
-    namespace: japp
-  spec:
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    ingress:
-    - from: []
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-allow
+  namespace: japp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  ingress:
+  - from: []
+```
 
 - allow egress traffic that dst port is 80 or 443. Other ports are denied.  
-  ```
-  kind: NetworkPolicy
-  apiVersion: networking.k8s.io/v1
-  metadata:
-    name: allow-egress-http-https
-    namespace: japp
-  spec:
-    podSelector:
-      matchLabels:
-        app.kubernetes.io/name: jpython
-    policyTypes:
-    - Egress
-    egress:
-    - ports:
-      - port: 80
-        protocol: TCP
-      - port: 443
-        protocol: TCP
-  ```
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-egress-http-https
+  namespace: japp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: jpython
+  policyTypes:
+  - Egress
+  egress:
+  - ports:
+    - port: 80
+      protocol: TCP
+    - port: 443
+      protocol: TCP
+```
 
 - more samples  
-  https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/01-deny-all-traffic-to-an-application.md
+https://github.com/ahmetb/kubernetes-network-policy-recipes/blob/master/01-deny-all-traffic-to-an-application.md
 
 - 기타  
-  정책으로 막아도 노드포트로 들어가는 트레픽은 무조건 curl이 성공 하는것 처럼 보인다. 이는 시나리오를 세우고 다시 테스트가 필요 할듯 하다.
+정책으로 막아도 노드포트로 들어가는 트레픽은 무조건 curl이 성공 하는것 처럼 보인다. 이는 시나리오를 세우고 다시 테스트가 필요 할듯 하다.
