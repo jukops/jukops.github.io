@@ -75,7 +75,7 @@ helm을 통해 설치 하였다면 사용자가 관리 하는 chart를 수정하
 $ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=<us>.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v<1.18.n>
 ```
 
-# 3. Worker update
+## 3. Worker update
 Worker도 업데이트를 진행 하여야 한다. Worker에서 실행되는 kubelet 등 의 프로세스도 클러스터 버전을 따라가기 때문에 같이 맞춰 줘야 제대로 된 동작을 기대할 수 있다.  
 EKS를 사용하는 경우 Amazon Linux, Ubuntu, Bottlerocket 이미지에 필요한 kubelet 등 필요한 데몬들을 설치하여 제공 한다. AMI ID의 경우 [설명서](https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)에 있으니 버전, 리전 등 각 환경에 맞는 AMI를 검색하여 사용 하면 된다.
 
