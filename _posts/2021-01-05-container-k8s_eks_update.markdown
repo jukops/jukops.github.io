@@ -1,19 +1,19 @@
 ---
 layout: post
-title: "EKS version update basic"
+title: "EKS version update"
 date: 2021-01-05 23:45:00
 author: Juhyeok Bae
 categories: container
 ---
 # Why EKS
 AWS EKS는 쿠버네티스 클러스터를 설치형으로 제공 한다. kubeadm이나 kops를 통해 설치 하더라도 번거로움이 있기 때문에 AWS를 사용하고 있는 환경이라면 많은 사람들이 EKS를 통해 클러스터를 운영한다. 쿠버네티스를 운영하게 되면 설치 뿐만 아니라 업데이트도 신경을 써야 한다.  
-AWS 웹콘솔에서 보면 EKS 클러스터를 업데이트 할 수 있는 기능이 보이지만 이 업데이트만 한다고 하여 쓸 수 있는게 아니다. 대부분의 것들을 managed 형태로 제공 하기 때문에 업데이트 또한 클러스터만 하면 될것 처럼 보이나, 제대로 시스템 전체를 업데이트 하려면 단순 클러스터 업데이트 외에 추가적인 작업이 필요하다.
+AWS 웹콘솔에서 보면 EKS 클러스터를 업데이트 할 수 있는 기능이 보이지만 이것만 한다고 하여 모든 업데이트가 완료 되는건 아니다. 대부분의 것들을 managed 형태로 제공 하기 때문에 업데이트 또한 클릭 한번이면 알아서 다 해줄것 처럼 보이나, 제대로 시스템 전체를 업데이트 하려면 단순 클러스터 업데이트 외에 추가적인 작업이 필요하다.
 
 # How to EKS update
-대부분의 내용은 [AWS 공식 설명서](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html)를 참고 하였다. 버전 마다 방법이나 순서가 조금씩 다를 수 있음으로 설명서를 확인하는것이 좋다.
+대부분의 내용은 [AWS 공식 설명서](https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html)를 참고 하였다. 버전 마다 방법이나 순서가 조금씩 다를 수 있음으로 정확한 방법은 설명서를 확인하는것이 좋다.
 
-### 1.Cluster update
-클러스터의 경우 CLI나 웹 등 다양한 방법으로 업데이트가 가능하다. terraform을 이용해 업데이트 하는 경우도 code에 정의된 version 행만 바꿔 apply 하면 손쉽게 업데이트가 가능하다.  
+## 1. Cluster update
+클러스터의 경우 CLI나 웹콘솔 등 다양한 방법으로 업데이트가 가능하다. terraform을 이용해 업데이트 하는 경우도 code에 정의된 version 행만 바꿔 apply 하면 손쉽게 업데이트가 가능하다.  
 code에서 1.17에서 1.18만 고친 후 apply 하면 바로 업데이트가 된다. 다만 버전 업데이트 또한 설치 만큼 시간이 오래 걸리는 작업임으로, AWS assume role로 토큰을 받아 쓴다면 재발급 하여 만료 시간을 늘린 후 진행 하는것이 좋을 수 있다.
 ```
 resource "aws_eks_cluster" "eks_cluster" {
@@ -22,14 +22,14 @@ resource "aws_eks_cluster" "eks_cluster" {
   version         = "1.18"
 ...
 ```
-업데이트 시 새로운 버전의 API 서버 노드를 만들어 검증 후 이상 없으면 새로운 버전을 사용 하는데, 이 작업을 AWS에서 자동으로 해준다. 만약 새로운 버전의 API간 아마존에서 정의한 테스트를 통과하지 못한다면 이전 버전으로 롤백 된다. 따라서 클러스터가 업데이트를 통해 사용하지 못하는 상태로 남아 있을 일은 없다고 한다.  
+업데이트 시 새로운 버전의 API 서버 노드를 만들어 검증 후 이상 없으면 새로운 버전을 사용 하는데, 이 작업을 AWS에서 자동으로 해준다. 만약 새로운 버전의 API가 AWS에서 정의한 테스트를 통과하지 못한다면 이전 버전으로 롤백 된다. 설명서에 따르면 클러스터가 업데이트를 통해 사용하지 못하는 상태로 남아 있을 일은 없다고 한다.  
 다만 업데이트 중 새로운 버전의 API 서버로 롤링 시 트레픽 유실 등의 연결 오류가 있을 수 있는데 이는 새로운 버전으로 롤링 될때 까지 재시도 하는것이 권고 사항이라고 한다.
 
-# 2. Tool update
-클러스터를 업데이트 한다고 해서 기본 Tool 성 서비스 들이 같이 업데이트 되지 않는다. Control plane에 속하는 Kube API server는 업데이트 되지만, worker node에 설치되는 몇몇 서비스들은 사용자가 따로 업데이트를 해주어야 한다.  
-어떤 클러스터 버전이 어떤 버전의 툴을 가져야 하는지는 AWS의 [설명서](https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/update-cluster.html)에서 버전을 확인 하면 된다.
+## 2. Tool update
+클러스터를 업데이트 한다고 해서 기본 Tool 성 서비스 들이 같이 업데이트 되지 않는다. Control plane에 속하는 Kube API server는 업데이트 되지만, worker node에 설치되는 몇몇 서비스들은 사용자가 따로 업데이트를 해주어야 한다. 어떤 클러스터 버전이 어떤 버전의 툴을 가져야 하는지는 AWS의 [설명서](https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/update-cluster.html)에서 버전을 확인 하면 된다.
+
 ### 2.1 KubeProxy
-Pod와 Service 등의 네트워킹을 해주는 서비스이다. 각 Worker 마다 있어야 하기 때문에 daemonset으로 배포 되어 있다.
+Pod와 Service 등의 라우팅 등 쿠버네티스 내부의 네트워킹을 해주는 서비스이다. 각 Worker 마다 있어야 하기 때문에 daemonset으로 배포 되어 있다.
 아래 명령어를 통하여 현재 어떤 버전의 이미지로 배포 되어 있는지 확인한다.
 ```
 $ kubectl get daemonset kube-proxy -n kube-system -o=jsonpath='{$.spec.template.spec.containers[:1].image}'
@@ -60,7 +60,7 @@ $ kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut
 ```
 $ curl -o aws-k8s-cni.yaml https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/v1.7.5/config/v1.7/aws-k8s-cni.yaml
 $ sed -i -e 's/us-west-2/ap-northeast-2/' aws-k8s-cni.yaml
-$ kubectl apply -f aws-k8s-cni.yamls
+$ kubectl apply -f aws-k8s-cni.yaml
 ```
 
 ### 2.4 ClusterAutoscaler
@@ -72,7 +72,7 @@ $ kubectl get -n kube-system deployment cluster-autoscaler -o yaml  | grep -i im
 ```
 helm을 통해 설치 하였다면 사용자가 관리 하는 chart를 수정하거나 제공되는 repo를 통해 helm upgrade를 진행 한다. kubectl을 이용해 바로 설치 하였다면 아래와 같이 업데이트를 진행할 수 도 있다.
 ```
-kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=<us>.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v<1.18.n>
+$ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=<us>.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v<1.18.n>
 ```
 
 # 3. Worker update
