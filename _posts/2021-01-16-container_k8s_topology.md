@@ -3,13 +3,13 @@ layout: post
 title: "K8s Topology Spread"
 date: 2021-01-16 23:45:00
 author: Juhyeok Bae
-categories: container
+categories: Container
 ---
 # Kubernetes의 Pod 분배
 많은양의 워크로드 처리와 HA를 위하여 Pod는 보통 여러대로 구성된다. 워크로드를 위해서는 Pod의 갯수만 늘리면 되지만 HA를 위해서 여러대를 구성하는 경우 정말 갯수만 늘리면 되는지 생각해볼 필요가 있다.  
 AWS에서 EC2 10대를 K8s의 워커노드로 운영하고 있다. 그리고 3대의 Pod가 동작 하고 있다. 근데 모든 파드가 A존의 노드에 떠있는 경우 A존에 장애가 발생 하면 어떻게 될까?  
 이는 두가지 상황을 생각해 볼 수 있다. 다행히 다른존에 있는 EC2에 남는 리소스가 많아 A존에 있는 Pod가 다 옮겨갈 수 있다면 비교적 짧은 시간안에 서비스가 재개될 것이다. 하지만 A존에 많은 노드가 있었고 다른쪽 존에 노드가 별로 없었다면 EC2를 추가로 띄워야 함으로 전 상황보다 더 서비스가 재개 되는데 오래 걸릴것 이다.  
-따라서 적절한 존, 노드에 Pod가 배치되는것이 중요하다. 물론 완벽한 HA 구성을 가지기 위해서는 이번 글에서 설명할 TopologySpreadConstraints 뿐만 아니라 CA, HPA의 임계치 taint node등 다른것 적절히 활용되어야 한다.
+따라서 적절한 존, 노드에 Pod가 배치되는것이 중요하다. 물론 완벽한 HA 구성을 가지기 위해서는 이번 글에서 설명할 TopologySpreadConstraints 뿐만 아니라 CA, HPA의 임계치 taint node등 다른것도 적절히 활용되어야 한다.
 
 # Topology Spread Constraints
 해당 기능은 K8s 1.19 버전부터 stable로 들어간 기능이다. topology에 label 값 등으로 조건을 줘 Pod가 여러 노드 그룹에 분산 배치 되도록 할 수 있다. 이를통해 고가용성 구성과 효율적으로 리소스를 활용 하도록 사용이 가능하다.  
@@ -30,6 +30,7 @@ Affinity도 비슷하게 사용 가능한데 차이점으로는 affinity는 조�
 ### Sample
 - 단일 토폴로지
 ![k8s-topologySpread](/assets/img/k8s-topologySpread.png)
+
 ```
 kind: Pod
 apiVersion: v1
@@ -49,10 +50,12 @@ spec:
   - name: pause
     image: k8s.gcr.io/pause:3.1
 ```
-위와 같은 토폴로지에서 해당 설정을 갖는 경우 zoneA에 한대 더 배치가 된다면 [3, 1]로 차이가 2가 되어 버려 maxSkew를 위반한다 따라서 zoneB에 배치가 된다. zone에 대한 키만 있고 노드에 대한 키는 없음으로 B에 배치될때 Node3, Node4 모두 배치가 가능하다.
+
+  위와 같은 토폴로지에서 해당 설정을 갖는 경우 zoneA에 한대 더 배치가 된다면 [3, 1]로 차이가 2가 되어 버려 maxSkew를 위반한다 따라서 zoneB에 배치가 된다. zone에 대한 키만 있고 노드에 대한 키는 없음으로 B에 배치될때 Node3, Node4 모두 배치가 가능하다.
 
 - 다중 토폴로지
 ![k8s-topologySpread](/assets/img/k8s-topologySpread.png)
+
 ```
 kind: Pod
 apiVersion: v1
@@ -78,10 +81,12 @@ spec:
   - name: pause
     image: k8s.gcr.io/pause:3.1
 ```
-위는 다중 토폴로지의 예이다. 다중 토폴로지의 경우 두 조건에 AND 연산을 하여 배치 가능한 노드를 선택한다. 첫번째의 경우 zone이 key이고 maxSkew가 1 임으로 B 존이 선택된다. 두번째 조건의 경우 node가 key이고 maxSkew가 1 임으로 Node4가 선택된다. 두 조건을 AND 연산하면 Node4에 배치 되도록 구성된다.
+
+  위는 다중 토폴로지의 예이다. 다중 토폴로지의 경우 두 조건에 AND 연산을 하여 배치 가능한 노드를 선택한다. 첫번째의 경우 zone이 key이고 maxSkew가 1 임으로 B 존이 선택된다. 두번째 조건의 경우 node가 key이고 maxSkew가 1 임으로 Node4가 선택된다. 두 조건을 AND 연산하면 Node4에 배치 되도록 구성된다.
 
 ![k8s-topologySpread](/assets/img/k8s-topologySpread.png)
-만약 이런 그림을 갖는다면 충돌이 발생한다. 첫번째 조건의 경우 zoneB가 선택된다. 두번째 조건의 경우 Node2가 선택된다. 이 두조건을 AND 연산 한다면 아무것도 없다. 따라서 파드 배치가 실패한다. 이를 극복하기 위해선 `maxSkew`를 증가 하거나 `whenUnsatisfiable`를 ScheduleAnyway로 사용하여 배치 하도록 구성할 수 있다.
+
+  만약 이런 그림을 갖는다면 충돌이 발생한다. 첫번째 조건의 경우 zoneB가 선택된다. 두번째 조건의 경우 Node2가 선택된다. 이 두조건을 AND 연산 한다면 아무것도 없다. 따라서 파드 배치가 실패한다. 이를 극복하기 위해선 `maxSkew`를 증가 하거나 `whenUnsatisfiable`를 ScheduleAnyway로 사용하여 배치 하도록 구성할 수 있다.
 
 # Conventions
 - `topologySpreadConstraints[*].topologyKey` 가 없는 노드는 계산에 포함되지 않는다. 즉 해당 노드에 selector에 적힌 Pod가 돌고 있어도 계산에서 빠짐으로 maxSkew 계산시 포함되지 않는다.
