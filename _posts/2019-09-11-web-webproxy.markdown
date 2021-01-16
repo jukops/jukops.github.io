@@ -3,7 +3,7 @@ layout: post
 title:  "Web Server 동작 비교"
 date:   2019-09-11 00:23:00
 author: Juhyeok Bae
-categories: web
+categories: Web
 ---
 # 들어가며
 웹서버는 보통 HTML이나 사진, 폰트 등의 정적인 리소스를 client에게 제공 하거나, tomcat 같은 WAS 서버 앞단에 위치하여 request를 WAS 쪽에 포워딩 해주는 역할을 한다. 포워딩 시 request에 헤더를 붙히기도 하고, URI를 구분하여 특정 서버에 분기 시키기도 하며 HTTPS인 경우 http termination 한 후 HTTP로 WAS에게 request를 넘기기도 한다. 뿐만 아니라 인증이나 압축 등의 많은 기능을 처리 하기도 한다.

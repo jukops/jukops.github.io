@@ -3,7 +3,7 @@ layout: post
 title:  "K8s 리소스 제한"
 date:   2020-07-08 01:56:00
 author: Juhyeok Bae
-categories: container
+categories: Container
 ---
 # 소개
 쿠버네티스는 하나의 노드에 여러 컨테이너가 같이 동작 하는 방식을 취한다. 하나의 컨테이너가 노드의 리소스를 많이 잡아 먹을 경우 다른 컨테이너가 리소스를 사용하지 못하는 경우가 발생한다. 과거 리눅스에서 유저 마다 디스크 quota를 주는것 처럼 쿠버네티스도 Pod 별로 리소스를 제한할 수 있다.

@@ -3,7 +3,7 @@ layout: post
 title:  "K8s Resource QoS"
 date:   2020-07-09 01:21:00
 author: Juhyeok Bae
-categories: container
+categories: Container
 ---
 # 소개
 쿠버네티스는 cpu, memory 같은 리소스에 대해 사용량 한계를 지정할 수 있다. limit 값의 경우 노드 리소스를 효율적으로 활용 하기 위해 overcommit을 허용 한다. overcommit은 장점도 있지만 pod가 limit 만큼 다 리소스를 써버리게 되면 실제 노드의 리소스가 부족해 지는 상황이 온다. 부족해지면 Pod를 제거/재시작 등의 스케쥴링이 필요하다. 이때 Pod에게 부여한 QoS 값을 통해 우선순위를 정하고 스케쥴링 대상을 선정할 수 있다. container OOM 발생시 kubelet이 OOM killer로써 동작 하는데, 어떤 Pod를 삭제할지 QoS를 통해 우선순위를 정한다.

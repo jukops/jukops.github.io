@@ -3,7 +3,7 @@ layout: post
 title: "EKS version update"
 date: 2021-01-05 23:45:00
 author: Juhyeok Bae
-categories: container
+categories: Container
 ---
 # Why EKS
 AWS EKS는 쿠버네티스 클러스터를 설치형으로 제공 한다. kubeadm이나 kops를 통해 설치 하더라도 번거로움이 있기 때문에 AWS를 사용하고 있는 환경이라면 많은 사람들이 EKS를 통해 클러스터를 운영한다. 쿠버네티스를 운영하게 되면 설치 뿐만 아니라 업데이트도 신경을 써야 한다.  

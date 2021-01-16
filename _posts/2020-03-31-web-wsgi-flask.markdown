@@ -3,7 +3,7 @@ layout: post
 title: "WSGI를 통한 Apache와 Flask 연동"
 date: 2020-03-31 00:54:00
 author: Juhyeok Bae
-categories: WEB
+categories: Web
 ---
 # 소개
 WSGI는 Web Server Gateway Interface의 약자로 과거 CGI나 fpm과 비슷한 역할을 하는 gateway interface 이다.  

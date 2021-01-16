@@ -3,7 +3,7 @@ layout: post
 title: "TLS SNI"
 date: 2020-04-12 19:04:00
 author: Juhyeok Bae
-categories: WEB
+categories: Web
 ---
 # 소개
 SNI는 클라이언트와 브라우져에서 지원되는 TLS의 확장 기능이다. TLS 통신시 client에서 server의 이름을 적어 request를 전송 하면 server에서는 해당 request가 어떤 도메인을 접근 하는지 알 수 있다. 이는 하나의 서버에서 여러 인증서를 처리 할때 어떤 도메인의 인증서를 내려줘야 할지 결정 하는데 도움을 준다.

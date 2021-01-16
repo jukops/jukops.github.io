@@ -3,7 +3,7 @@ layout: post
 title: "Calico basic"
 date: 2020-08-28 00:44:00
 author: Juhyeok Bae
-categories: container
+categories: Container
 ---
 # Calico란
 기본적으로 Kubernetes에서는 Pod가 격리 되지 않는다. 따라서 모든 incoming traffic을 필터링 없이 받는다. Calico는 네트워크 정책을 적용할 수 있는 툴이다. 정책을 세워 pod(tenant)간 네트워크 적으로 격리를 시킬 수 있다. 이 정책은 기본적으로 selector들을 활용해 pod를 선택하고 룰들을 적용한다. 내부적으로는 이 정책을 iptables로 변경해 linux에 적용한다. iptables로 traffic을 관리 한다는 점에서 kube-proxy와 비슷하다. K8s에 설치 되는 요소로는 Daemonset과 CustomResourceDefinition/bgppeers.crd.projectcalico.org이 있다.  
