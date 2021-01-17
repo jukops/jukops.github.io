@@ -168,6 +168,7 @@ Topology Spread 설정중 가장 타이트하게 분배할 수 있는 설정을 
 maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 변경 하였다. maxSkew가 1인데도 불구하고 DoNotSchedule과 달리 pod가 균등하게 배치 되지 않았다.
 
 - Configuration
+
   ```
   topologySpreadConstraints:
   - maxSkew: 1
@@ -178,6 +179,7 @@ maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 �
         app: {{ .Values.app.name }}
   ```
 - pod 1
+
   노드|존|갯수
   |---|---|---|
   225|a|0
@@ -185,6 +187,7 @@ maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 �
   37|c|0
 
 - pod 2 (1>2)
+
   노드|존|갯수
   |---|---|---|
   225|a|1
@@ -192,6 +195,7 @@ maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 �
   37|c|0
 
 - pod 3 (2>3)
+
   노드|존|갯수
   |---|---|---|
   225|a|2
@@ -199,6 +203,7 @@ maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 �
   37|c|0
 
 - pod 5 (3>5)
+
   노드|존|갯수
   |---|---|---|
   225|a|3
@@ -209,6 +214,7 @@ maxSkew는 그대로 1로 유지한채 whenUnsatisfiable를 ScheduleAnyway로 �
 DoNotSchedule로 각 노드마다 Pod를 한대씩 배포해두었다. 그리고 노드의 리소스가 널널한 상황임으로 곧 scale-in이 되어야 하는 상태이다. 이 상태에서 노드가 하나라도 줄어들면 토폴로지 그룹이 없어지는 상황인데 CA가 노드를 줄일수 있는지, 그리고 줄어 들었을때 Pod가 잘배치 되는지 확인을 하고 싶었다. 노드가 2대로 줄어 들어도 [2,1]로 maxSkew 1에 위반되지 않기 때문에 유지될것이고, 노드가 1대로 줄어 들더라도 비교할 토폴로지가 없어 maxSkew에 위반될것이 없기 문제가 없을것으로 생각하고 실험을 진행 하였다.  
 
 - Configuration
+
   ```
   topologySpreadConstraints:
   - maxSkew: 1
@@ -218,7 +224,9 @@ DoNotSchedule로 각 노드마다 Pod를 한대씩 배포해두었다. 그리고
       matchLabels:
         app: {{ .Values.app.name }}
   ```
+
 - Node resource usage
+
   ```
   k describe nodes | grep -v Namespace | grep -i -A 4 requests
   Resource                    Requests      Limits
@@ -239,7 +247,9 @@ DoNotSchedule로 각 노드마다 Pod를 한대씩 배포해두었다. 그리고
   memory                      1772Mi (12%)  2636Mi (17%)
   ephemeral-storage           0 (0%)        0 (0%)
   ```
+
 - pod 3
+
   노드|존|갯수
   |---|---|---|
   225|a|1
@@ -247,6 +257,7 @@ DoNotSchedule로 각 노드마다 Pod를 한대씩 배포해두었다. 그리고
   37|c|1
 
 - CA Log
+
   ```
   7 scale_down.go:421] Node b-zone-node - cpu utilization 0.224490
   8 scale_down.go:421] Node c-zone-node - cpu utilization 0.188776
@@ -264,6 +275,7 @@ DoNotSchedule로 각 노드마다 Pod를 한대씩 배포해두었다. 그리고
   20 cluster.go:190] Fast evaluation: node a-zone-node is not suitable for removal: failed to find place for app/myPod-in-Azone-now
   21 scale_down.go:591] 3 nodes found to be unremovable in simulation, will re-check them at 2021-01-17 10:37:43.117311308 +0000 UTC m=+178737.958414830
   ```
+
   7 - 10 행을 보면 CPU 사용률이 모두 0.5 이하로 scale down 후보에 선정된것을 볼 수 있다. 그리고 노드삭제가 가능한지 유무를 확인 하는데 B와 C존에 있는 node의 경우 삭제되면 안되는 Pod를 가지고 있기에 후보에서 제외 되었다. 그 후 A존에 있는 노드를 확인 하는데 TopologySpreadConstraints가 걸려 있는 Pod를 확인한다. 각각 다른 노드로 보낼 수 있는지 확인 하는데 규칙에 위배되어 파드를 옮길 수 없다고 나온다. 즉 scale-down(scale-in)에 실패 하였다.  
   maxSkew를 2로 변경한 뒤 Pod들을 다시 배포해 테스트 환경을 만들었다. 그 후 Pod가 축출 되고 노드가 줄어드는것을 확인 할 수 있었다.  
   즉 Node를 줄이기 위해 Pod 축출 시도를 하더라도 그 순간은 노드가 있는걸로 계산되어 maxSkew에 위반 되면 Pod를 축출 하지 못한다. Pod 축출에 실패하면 노드가 줄어들지도 않는다. 이를 계산해 TopologySpreadConstraints를 사용해야 효율적인 리소스 사용률을 가질수 있다.
