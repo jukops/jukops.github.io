@@ -126,6 +126,7 @@ topology spread를 적용하기 전 Pod를 늘리거나 줄일때 zone에 상관
 ### 1차 적용 - DoNotSchedule
 Topology Spread 설정중 가장 타이트하게 분배할 수 있는 설정을 적용 하였다. maxSkew는 1이고 whenUnsatisfiable는 DoNotSchedule이기 때문에 다른존과 차이가 1이상 나지 않도록 분배한다. 장점으로는 zone 별로 정확하게 분배가 가능한점이고, 단점으로는 특정존에만 파드가 늘어날 수 있는 상황인데, 그 존에 있는 노드의 리소스가 부족하다면 배치가 안됨으로 스케일아웃이 안될 수 있는점이다.
 - Configuration
+
   ```
   topologySpreadConstraints:
   - maxSkew: 1
@@ -137,6 +138,7 @@ Topology Spread 설정중 가장 타이트하게 분배할 수 있는 설정을 
   ```
 
 - 파드 2개
+
   |노드|존|갯수|
   |---|---|---|
   60|a|1
@@ -145,6 +147,7 @@ Topology Spread 설정중 가장 타이트하게 분배할 수 있는 설정을 
   37|c|0
 
 - 파드 3개 (2>3)
+
   |노드|존|갯수|
   |---|---|---|
   60|a|1
@@ -153,6 +156,7 @@ Topology Spread 설정중 가장 타이트하게 분배할 수 있는 설정을 
   37|c|1
 
 - 파드 3개 (3>6)
+
   |노드|존|갯수|
   |---|---|---|
   60|a|1
