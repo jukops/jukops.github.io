@@ -9,27 +9,18 @@ categories: Log
 
 Fluentbit은 로그 수집기 이다. 컨테이너나 머신에서 발생하는 로그를 수집하고 필요한경우 파싱 하여 서버로 전송 한다. 이때 서버는 Elastic이 될수도 있고 S3가 될수도 있고 다양한 곳으로 전송을 지원한다. 데이터 parsing 또한 json, LTSV, regex 등 다양한 형식으로 가공이 가능하다. C언어로 구현되었으며 비동기 I/O를 지원 함으로 높은 성능을 가질 수 있다.
 
-# Fluentbit Features
-### Backpressure Handling
-
 # Fluentbit Key Concepts
-### Event or Record
-Fluentbit 에서 핸들링 하는 모든 데이터는 event 나 record로 간주된다. 줄 단위로 들어오는 파일형태의 로그를 읽는다면 이는 보통 한줄 한줄이 독립적인 이벤트 이다. 내부적으로는 이러한 이벤트를 timestamp와 message로 구성한다.
+- Event or Record : Fluentbit 에서 핸들링 하는 모든 데이터는 event 나 record로 간주된다. 줄 단위로 들어오는 파일형태의 로그를 읽는다면 이는 보통 한줄 한줄이 독립적인 이벤트이다. 내부적으로는 이러한 이벤트를 timestamp와 message로 구성한다.
 
-### Filtering
-입력 받은 데이터를 수정하는 프로세스를 필터링이라고 한다. 필드를 삭제하거나 추가 할 수 있으며 특정 조건에 따라 수정할 수도 있다.
+- Filtering : 입력 받은 데이터를 수정하는 프로세스를 필터링이라고 한다. 필드를 삭제하거나 추가 할 수 있으며 특정 조건에 따라 수정할 수도 있다.
 
-### Tag
-Fluentbit에서 핸들링 하는 모든 이벤트는 Tag가 할당 된다. 라우터는 Tag 기반으로 Filter나 Output으로 라우팅을 결정 한다. 수동으로 Tag를 붙히지 않는다면 이벤트가 생성된 입력 플러그인 인스턴스 이름을 Tag로 할당 한다. 다만 Forward Input만 Tag를 가지지 않는데, 이는 클라이언트가 설정해 전송한 Tag를 사용하기 때문이다.
+- Tag : Fluentbit에서 핸들링 하는 모든 이벤트는 Tag가 할당 된다. 라우터는 Tag 기반으로 Filter나 Output으로 라우팅을 결정 한다. 수동으로 Tag를 붙히지 않는다면 이벤트가 생성된 입력 플러그인 인스턴스 이름을 Tag로 할당 한다. 다만 Forward Input만 Tag를 가지지 않는데, 이는 클라이언트가 설정해 전송한 Tag를 사용하기 때문이다.
 
-### Timestamp
-Event가 생성 된 시간을 나타낸다. 모든 이벤트는 timestamp가 존재하며 seconds.nanosecnds 형식을 가진다. Input 플러그인에 의해 설정 되거나 parsing process에서 발견된다.
+- Timestamp : Event가 생성 된 시간을 나타낸다. 모든 이벤트는 timestamp가 존재하며 seconds.nanosecnds 형식을 가진다. Input 플러그인에 의해 설정 되거나 parsing process에서 발견된다.
 
-### Match
-수집 및 처리된 이벤트를 대상으로 라우팅 할 때 사용된다. Match 키 와 일치하는 쪽으로 라우팅 한다.
+- Match : 수집 및 처리된 이벤트를 대상으로 라우팅 할 때 사용된다. Match 키 와 일치하는 쪽으로 라우팅 한다.
 
-### Structured Message
-Fluentbit은 항상 모든 Event message를 구조화된 메시지로 사용한다. 성능을 위하여 [MessagePack](https://msgpack.org/)이라는 binary serialization 형식으로 사용한다.
+- Structured Message : Fluentbit은 항상 모든 Event message를 구조화된 메시지로 사용한다. 성능을 위하여 [MessagePack](https://msgpack.org/)이라는 binary serialization 형식으로 사용한다.
 
 # Buffering & Storage
 Fluentbit이 데이터 처리시 system memory(heap)을 기본적으로 사용한다. 데이터 전달 되기전 메모리를 임시공간으로 활용해 레코드를 처리한다. 메모리 버퍼링 사용시 가장 빠른속도를 낼 수 있지만 [Backpressure](https://docs.fluentbit.io/manual/administration/backpressure) 이슈나 메모리 사용률을 줄이기 위해서 특정 전략이 필요 하기도 하다. 네트워크에 문제가 생겨 전송에 실패하거나 지연이 생길 경우 Backpressure 이슈가 발생 하는데 Fluentbit은 이를 해결하도록 설계 되었다고 한다.  
@@ -41,19 +32,19 @@ Input 플러그인이 record를 내보낼때 엔진은 여러 record를 묶어 �
 Chunk로 그룹화 한다. 일반적으로 Chunk 크기는 약 2MB이다. 엔진은 Chunk를 저장할 공간을 선택 하는데 메모리에 생성되도록 기본값이 설정 되어 있다.
 
 ### Buffering and Memory
-Chunk의 경우 메모리가 기본이긴 하지만 설정 변경이 가능하다. 메모리를 선택한 경우 가능한 많이 데이터를 저장한다. 메모리를 사용하는 경우 가장 빠르긴 하지만 네트워크 문제 등으로 데이터를 전달하지 못하면 데이터가 쌓임 으로 메모리 사용량이 계속 증가한다. 만약 시스템의 임계값 이상으로 커진다면 OOM이 발생해 데몬이 죽을 가능성도 존재한다.  
-이런 경우 문제 해결을 위한 방법은 `mem_buf_limit`을 Input 플러그인에 설정해 입력하는 레코드의 메모리양을 제한하는 것이다. `mem_buf_limit` 만큼 enqueue 된 경우 네트워크 문제등이 해소되어 데이터 전달이 완료 되거나 플러시 되어야 수집이 가능하다. 해소 전까지 Input plugin은 일시정지 상태가 된다.  
+Chunk의 경우 메모리가 기본이긴 하지만 설정 변경이 가능하다. 메모리를 선택한 경우 데이터를 저장할 수 있는 만큼 계속 저장한다. 메모리를 사용하는 경우 가장 빠르긴 하지만 네트워크 문제 등으로 데이터를 전달하지 못하면 데이터가 쌓임 으로 메모리 사용량이 계속 증가한다. 만약 시스템의 임계값 이상으로 커진다면 OOM이 발생해 데몬이 죽을 가능성도 존재한다.  
+이런 경우 문제 해결을 위한 방법은 `mem_buf_limit`을 Input 플러그인에 설정해 입력하는 레코드의 메모리양을 제한하는 것이다. `mem_buf_limit` 만큼 enqueue 된 경우 데이터 전달이 완료 되거나 flush 되어야 다시 수집이 가능하다. 해소 전까지 Input 플러그인은 일시정지 상태가 된다.  
 해당 방법을 사용하면 메모리 사용량을 제한 하는데는 도움이 되지만 일시정지 된 동안 데이터를 입력 받을 수 없기 때문에 로그 유실이 가능하다. 목적 자체가 데이터 보존 보다는 메모리제어와 fluent 데몬이 죽지 않도록 관리 하는것이니 환경에 맞게 사용하여야 한다. 만약 데이터의 안정성이 우선이라면 파일시스템 버퍼링을 사용 하여야 한다.
 
 ### Filesystem buffering to the rescue
-파일시스템 버퍼링 사용시 Backpressure 이슈와 메모리 컨트롤에 도움을 줄 수 있다. 파일 시스템 버퍼링 사용 한다고 해서 메모리 버퍼링을 완전히 사용하지 않는것이 아니다. 파일시스템 버퍼링을 키면 성능과 안전 두가지를 모두 활용 할 수 있다.  
+파일시스템 버퍼링 사용시 Backpressure 이슈와 메모리 컨트롤에 도움을 줄 수 있다. 파일 시스템 버퍼링 사용 한다고 해서 메모리 버퍼링을 완전히 사용하지 않는것이 아니다. 파일시스템 버퍼링을 키면 성능과 안전성 두가지를 모두 잡을 수 있다.  
 파일시스템 버퍼링 활성화 시 엔진이 동작이 달라 지는데, Chunk 생성 시 content를 메모리에 저장하면서 [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html)를 통해 디스크에 복사본도 매핑한다. 즉 Chunk는 메모리에서 활성화 되고 디스크에 백업된다.
-Fluentbit은 메모리에 있는 Chunk의 갯수를 제어 하며 backpressure와 메모리 사용량을 조절한다. 기본적으로 엔진은 메모리에 128개의 Chunk를 허용하는데, 이 값은 `storage.max_chunks_up`에 의해 제어 된다.
+파일시스템 버퍼링은 메모리에 있는 Chunk의 갯수를 제어해 backpressure와 메모리 사용량을 조절한다. 기본적으로 엔진은 메모리에 128개의 Chunk를 허용하는데, 이 값은 `storage.max_chunks_up`에 의해 제어 된다. Active chunk는 전송할 준비가 되어 있고 수신중인 Chunk이고, Down 상태에 있는 Chunk는 파일시스템에 있고 전송할 준비가 안되어 있으며 메모리로 이동 되지 않는다.
 만약 `storage.type`을 filesystem으로 사용하고 있고 `mem_buf_limit`을 사용중 일때 limit에 도달하면 플러그인이 일시중지 되는 대신, 모든 새 데이터가 파일시스템에 Chunk로 이동한다. 이를 통해 서비스의 메모리 사용량을 제어하고 데이터를 잃지 않도록 보장한다.
 
 ### Limiting Filesystem space for Chunks
 Fluentbit은 logical queue가 구현되어 있다. Tag 기반의 Chunk는 여러곳으로 라우팅 가능 함으로 생성된 곳과 이동해야 하는곳에서 reference를 유지한다.
-만약 여러개의 목적지가 있는 경우 하나만 backpressure가 발생한다면, 그 하나 떄문에 전체가 로그를 정상적으로 못받는 상황이 올 수 있다. 이를 위해 특정 Output 플러그인에 `storage.total_limit_size`를 설정 할 수 있다. 이 설정을 하면 파일시스템에 존재하는 Chunk 수를 제한 할 수 있다. 하나의 대상이 limit에 도달하면 해당 output 대상에 대한 queue에서 가장 오래된 Chunk가 삭제된다.
+만약 여러개의 목적지가 있는데 하나만 backpressure가 발생한다면, 그 하나 때문에 전체가 로그를 정상적으로 못받는 상황이 올 수 있다. 이를 위해 특정 Output 플러그인에 `storage.total_limit_size`를 설정 할 수 있다. 이 설정을 하면 파일시스템에 존재하는 Chunk 수를 제한 할 수 있다. 하나의 대상이 limit에 도달하면 해당 output 대상에 대한 queue에서 가장 오래된 Chunk가 삭제된다.
 
 ### Configuration - storage layer
 Storage layer는 Service, Input, Output 3개의 영역을 가진다. 상세한 설정을 보려면 이 [페이지](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/configuration-file)에서 확인할 수 있다.
