@@ -6,7 +6,6 @@ author: Juhyeok Bae
 categories: Log
 ---
 # Fluentbit 소개
-<아직 작성중>
 
 Fluentbit은 로그 수집기 이다. 컨테이너나 머신에서 발생하는 로그를 수집하고 필요한경우 파싱 하여 서버로 전송 한다. 이때 서버는 Elastic이 될수도 있고 S3가 될수도 있고 다양한 곳으로 전송을 지원한다. 데이터 parsing 또한 json, LTSV, regex 등 다양한 형식으로 가공이 가능하다. C언어로 구현되었으며 비동기 I/O를 지원 함으로 높은 성능을 가질 수 있다.
 
