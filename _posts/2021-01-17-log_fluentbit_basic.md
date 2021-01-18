@@ -36,13 +36,67 @@ Fluentbit이 데이터 처리시 system memory(heap)을 기본적으로 사용�
 
 Fluentbit의 Buffering 전략은 메모리를 기본 버퍼링 메카니즘으로 사용하고 파일시스템을 보조 버퍼링 메카니즘으로 사용한다. 데이터를 처리하거나 전달할 준비가 되면 항상 메모리에 데이터가 존재하고, 큐에 있는 데이터는 메모리로 이동 하기 전까지 파일 시스템에 있을 수 있다.
 
-### 기본 개념
-- Chunks : Input 플러그인이 record를 내보낼때 엔진은 여러 record를 묶어 하나의
+### Chunks
+Input 플러그인이 record를 내보낼때 엔진은 여러 record를 묶어 하나의
 Chunk로 그룹화 한다. 일반적으로 Chunk 크기는 약 2MB이다. 엔진은 Chunk를 저장할 공간을 선택 하는데 메모리에 생성되도록 기본값이 설정 되어 있다.
 
-- Buffering and Memory : Chunk의 경우 메모리가 기본이긴 하지만 설정 변경이 가능하다. 메모리를 선택한 경우 가능한 많이 데이터를 저장한다. 메모리를 사용하는 경우 가장 빠르긴 하지만 네트워크 문제 등으로 데이터를 전달하지 못하면 데이터가 쌓임 으로 메모리 사용량이 계속 증가한다. 만약 시스템의 임계값 이상으로 커진다면 OOM이 발생해 데몬이 죽을 가능성도 존재한다. 이런 경우 문제 해결을 위한 방법은 `mem_buf_limit`을 Input 플러그인에 설정해 입력하는 레코드의 메모리양을 제한하는 것이다. `mem_buf_limit` 만큼 enqueue 된 경우 네트워크 문제등이 해소되어 데이터 전달이 완료 되거나 플러시 되어야 수집이 가능하다. 해소 전까지 Input plugin은 일시정지 상태가 된다.
-해당 방법을 사용하면 메모리 사용량을 제한 하는데는 도움이 되지만 일시정지 된 동안 데이터를 입력 받을 수 없기 때문에 로그 유실이 가능하다. 목적 자체가 데이터 보존 보다는 메모리제어와 fluent 데몬이 죽지 않도록 관리 하는것이니 환경에 맞게 사용하여야 한다.
+### Buffering and Memory
+Chunk의 경우 메모리가 기본이긴 하지만 설정 변경이 가능하다. 메모리를 선택한 경우 가능한 많이 데이터를 저장한다. 메모리를 사용하는 경우 가장 빠르긴 하지만 네트워크 문제 등으로 데이터를 전달하지 못하면 데이터가 쌓임 으로 메모리 사용량이 계속 증가한다. 만약 시스템의 임계값 이상으로 커진다면 OOM이 발생해 데몬이 죽을 가능성도 존재한다.  
+이런 경우 문제 해결을 위한 방법은 `mem_buf_limit`을 Input 플러그인에 설정해 입력하는 레코드의 메모리양을 제한하는 것이다. `mem_buf_limit` 만큼 enqueue 된 경우 네트워크 문제등이 해소되어 데이터 전달이 완료 되거나 플러시 되어야 수집이 가능하다. 해소 전까지 Input plugin은 일시정지 상태가 된다.  
+해당 방법을 사용하면 메모리 사용량을 제한 하는데는 도움이 되지만 일시정지 된 동안 데이터를 입력 받을 수 없기 때문에 로그 유실이 가능하다. 목적 자체가 데이터 보존 보다는 메모리제어와 fluent 데몬이 죽지 않도록 관리 하는것이니 환경에 맞게 사용하여야 한다. 만약 데이터의 안정성이 우선이라면 파일시스템 버퍼링을 사용 하여야 한다.
 
+### Filesystem buffering to the rescue
+파일시스템 버퍼링 사용시 Backpressure 이슈와 메모리 컨트롤에 도움을 줄 수 있다. 파일 시스템 버퍼링 사용 한다고 해서 메모리 버퍼링을 완전히 사용하지 않는것이 아니다. 파일시스템 버퍼링을 키면 성능과 안전 두가지를 모두 활용 할 수 있다.  
+파일시스템 버퍼링 활성화 시 엔진이 동작이 달라 지는데, Chunk 생성 시 content를 메모리에 저장하면서 [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html)를 통해 디스크에 복사본도 매핑한다. 즉 Chunk는 메모리에서 활성화 되고 디스크에 백업된다.
+Fluentbit은 메모리에 있는 Chunk의 갯수를 제어 하며 backpressure와 메모리 사용량을 조절한다. 기본적으로 엔진은 메모리에 128개의 Chunk를 허용하는데, 이 값은 `storage.max_chunks_up`에 의해 제어 된다.
+만약 `storage.type`을 filesystem으로 사용하고 있고 `mem_buf_limit`을 사용중 일때 limit에 도달하면 플러그인이 일시중지 되는 대신, 모든 새 데이터가 파일시스템에 Chunk로 이동한다. 이를 통해 서비스의 메모리 사용량을 제어하고 데이터를 잃지 않도록 보장한다.
+
+### Limiting Filesystem space for Chunks
+Fluentbit은 logical queue가 구현되어 있다. Tag 기반의 Chunk는 여러곳으로 라우팅 가능 함으로 생성된 곳과 이동해야 하는곳에서 reference를 유지한다.
+만약 여러개의 목적지가 있는 경우 하나만 backpressure가 발생한다면, 그 하나 떄문에 전체가 로그를 정상적으로 못받는 상황이 올 수 있다. 이를 위해 특정 Output 플러그인에 `storage.total_limit_size`를 설정 할 수 있다. 이 설정을 하면 파일시스템에 존재하는 Chunk 수를 제한 할 수 있다. 하나의 대상이 limit에 도달하면 해당 output 대상에 대한 queue에서 가장 오래된 Chunk가 삭제된다.
+
+### Configuration - storage layer
+Storage layer는 Service, Input, Output 3개의 영역을 가진다. 상세한 설정을 보려면 이 [페이지](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/configuration-file)에서 확인할 수 있다.
+
+- Service : Storage layer의 global environment 설정이다.
+
+  ```
+  [SERVICE]
+    flush                     1
+    log_Level                 info
+    storage.path              /var/log/flb-storage/
+    storage.sync              normal
+    storage.checksum          off
+    storage.backlog.mem_limit 5M
+  ```
+  위와 같은 설정이 있다면 data의 root는 /var/log/flb-storage/고, normal 동기화를 사용한다. backlog data 처리시 메모리는 최대 5MB까지 사용한다. 그리고 1 초마다 데이터를 flush 한다.
+
+- Input : 데이터를 입력 받는 부분이다. 모든 Input 플러그인은 storage 환경 설정이 가능하다.
+
+  ```
+  [INPUT]
+    name          cpu
+    storage.type  filesystem
+
+  [INPUT]
+    name          mem
+    storage.type  memory
+  ```
+  cpu는 파일시스템으로 버퍼링되고, mem은 메모리에 버퍼링 된다.
+
+- Output : 데이터를 목적지로 보내는 부분이다. 특정 Chunk가 filesystem 인 경우 Output에서 logical queue의 크기 제어가 가능하다.
+
+  ```
+  [INPUT]
+    name                      cpu
+    storage.type              filesystem
+
+  [OUTPUT]
+    name                      stackdriver
+    match                     *
+    storage.total_limit_size  5M
+  ```
+  cpu data를 파일시스템에 생성하고 stackdriver로 전달된다. Fluentbit이 네트워크 문제로 전송할 수 없게 되면 CPU data를 계속 버퍼링 하지만 최신 5MB만 유지한다.
 
 # Fluentbit Configuration - Data Pipeline
 Fluentbit은 아래와 같은 파이프라인을 가진다. 각 단계에서 하는일을 나누어 관리한다.
