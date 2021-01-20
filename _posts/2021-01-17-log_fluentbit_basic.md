@@ -89,6 +89,17 @@ Storage layer는 Service, Input, Output 3개의 영역을 가진다. 상세한 �
   ```
   cpu data를 파일시스템에 생성하고 stackdriver로 전달된다. Fluentbit이 네트워크 문제로 전송할 수 없게 되면 CPU data를 계속 버퍼링 하지만 최신 5MB만 유지한다.
 
+# Scheduling and Retries
+### Scheduling
+Fluentbit에는 Input 플러그인에서 데이터 수집하는것을 conrdination 하고, Output 플러그인을 통해 언제 flush 할지 조절 하는 엔진이 있다. Scheduler는 고정된 시간마다 새로운 데이터를 flush 하고 요청이 오면 재시도를 진행한다.  
+Output 플러그인에서 데이터 flush를 진행할 때 아래와 같은 응답을 엔진에게 리턴할 수 있다.
+- OK : 데이터를 잘 처리하고 flush 할 수 있었음.
+- Error : 복구 불가능한 에러가 발생 했으며, 엔진은 해당 데이터를 다시 flush 하지 않아야 한다.
+- Retry : 엔진은 scheduler 에게 해당 데이터를 flush 하기 위해 재시도 하도록 요청하고, scheduler는 그 전에 얼마나 대기할 지 결정한다.
+
+### Retry config
+Scheduler는 Output 플러그인에 얼마나 retry 할것인지 옵션을 제공한다. `Retry_Limit`을 사용해 결정하며, false로 설정시 무한 재시도를 하고 숫자를 입력시 해당 횟수 만큼 재시도 한다.
+
 # Fluentbit Configuration - Data Pipeline
 Fluentbit은 아래와 같은 파이프라인을 가진다. 각 단계에서 하는일을 나누어 관리한다.
 ![pipeline](/assets/img/fluentbit-pipeline.png)
