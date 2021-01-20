@@ -98,7 +98,23 @@ Output 플러그인에서 데이터 flush를 진행할 때 아래와 같은 응�
 - Retry : 엔진은 scheduler 에게 해당 데이터를 flush 하기 위해 재시도 하도록 요청하고, scheduler는 그 전에 얼마나 대기할 지 결정한다.
 
 ### Retry config
-Scheduler는 Output 플러그인에 얼마나 retry 할것인지 옵션을 제공한다. `Retry_Limit`을 사용해 결정하며, false로 설정시 무한 재시도를 하고 숫자를 입력시 해당 횟수 만큼 재시도 한다.
+Scheduler는 Output 플러그인에 얼마나 retry 할것인지 옵션을 제공한다. `Retry_Limit`을 사용해 결정하며, False로 설정시 무한 재시도를 하고 숫자를 입력시 해당 횟수 만큼 재시도 한다.
+
+```
+[OUTPUT]
+    Name        http
+    Host        web.k8s.cluster.local
+    Port        80
+    Retry_Limit False
+
+[OUTPUT]
+    Name            es
+    Host            es.k8s.cluster.local
+    Port            9200
+    Logstash_Format On
+    Retry_Limit     5
+```
+http 서버로는 무한 재시도하고, es 서버로는 5번만 재시도 한다.
 
 # Fluentbit Configuration - Data Pipeline
 Fluentbit은 아래와 같은 파이프라인을 가진다. 각 단계에서 하는일을 나누어 관리한다.
