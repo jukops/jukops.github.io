@@ -19,7 +19,7 @@ Argo CD는 쿠버네티스의 리소스를 배포하기 위한 Continuous Tool �
 기본적인 yaml 뿐만 아니라 Helm으로 배포가 가능하다. helm 코드를 git에 올리면 내부적으로 template을 최종적인 manifest로 생성해 클러스터에 적용한다. helm 외에 kustomize, ksonnet, jsonnet을 지원하며 custom config management tool 도 지원 한다고 한다. 그리고 원한다면 추가적인 변수를 github code에 오버라이딩 하여 사용할 수 있다.
 
 ##### 모니터링
-기본적인 WEB UI에서 볼 수 있는것이 생각보다 많다. 그리고 프로메테우스 메트릭도 지원해 연계해서 현재 상태를 볼 수 있다. Audit 기능도 가지고 있어 Application Event나 API 호출 기록을 확인할 수 있다.
+기본적인 WEB UI에서 볼 수 있는것이 생각 보다 많다. 배포된 K8s 오브젝트 리스트, Sync 상태, 배포된 Pod의 로그 등 확인이 가능하다. 그리고 프로메테우스 메트릭도 지원해 연계해서 현재 상태를 볼 수 있다. Audit 기능도 가지고 있어 Application Event나 API 호출 기록을 확인할 수 있다.
 
 ##### Sync
 Git repository를 연계 시키고 git에 commit, merge 등 수정사항이 생기면 자동반영 되도록 설정할 수 있다. 원한다면 수동으로 변경도 가능하다. 그리고 git에서 발생 시키는 webhook 처리도 가능하다. Sync를 통해 배포를 진행할 때 순서가 필요할 수 있는데 PreSync, Sync, PostSync를 지원하기 때문에 변경 전/후 설정이 필요 하다면 이를 이용해 구성할 수 있다.
