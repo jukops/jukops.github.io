@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Argo for K8s deployment"
-date: "2021-05-15 18:06:00"
+date: 2021-05-15
 author: Juhyeok Bae
 categories: Container
 ---
